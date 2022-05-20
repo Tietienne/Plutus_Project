@@ -33,6 +33,9 @@ fun Greeting(name: String) {
 @Composable
 fun DefaultPreview() {
     Plutus_ProjectTheme {
-        Greeting("Android")
+//        DrawTransaction()
+//        MainContent()
+//        timePicker()
+        DrawTransaction()
     }
 }
