@@ -31,6 +31,7 @@ class ExampleUnitTest {
         val db = resetAndGetDatabase()
         val values = ContentValues().apply {
             put("id", 1)
+            put("name", "test")
         }
         val newRowId = db.insert("Notebook", null, values)
         assertNotEquals(newRowId, -1)
