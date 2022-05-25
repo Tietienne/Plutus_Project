@@ -1,8 +1,11 @@
 package com.example.plutus_project.database
 
+import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.example.plutus_project.items.Notebook
 
 class NoteDatabaseHelper(
     context: Context, DATABASE_NAME: String
@@ -25,5 +28,30 @@ class NoteDatabaseHelper(
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         // to be implemented if the schema changes from oldVersion to newVersion
         // we use ALTER TABLE SQL statements to transform the tables
+    }
+
+    fun getAllNotebooks() : List<Notebook> {
+        val readable_db = this.readableDatabase
+        val notebooks = ArrayList<Notebook>()
+        val selectQuery = "SELECT * FROM Notebook"
+        val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()) {
+                    val notebookId = Integer.parseInt(cursor.getString(0))
+                    val notebookName = cursor.getString(1)
+                    notebooks.add(Notebook(notebookId, notebookName))
+                }
+            }
+        }
+        return notebooks
+    }
+
+    fun addNotebook(name : String) : Int {
+        val writable_db = this.writableDatabase
+        val values = ContentValues().apply {
+            put("name", "test")
+        }
+        return writable_db.insert("Notebook", null, values).toInt()
     }
 }

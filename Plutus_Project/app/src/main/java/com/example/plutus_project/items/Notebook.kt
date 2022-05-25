@@ -1,5 +1,4 @@
 package com.example.plutus_project.items
 
-class Notebook(id : Int, name : String) {
-
+class Notebook(var id: Int, var name: String) {
 }

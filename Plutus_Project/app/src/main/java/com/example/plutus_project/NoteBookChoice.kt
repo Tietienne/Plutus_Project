@@ -20,10 +20,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import com.example.plutus_project.database.DatabaseRequests
+import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.items.Notebook
 
 @Composable
-fun NoteBookChoice(db : DatabaseRequests) {
+fun NoteBookChoice(db : NoteDatabaseHelper) {
     val openCreate = remember { mutableStateOf(false) }
     val notebooks = remember { mutableListOf(db.getAllNotebooks())}
     Column(modifier = Modifier.fillMaxSize()) {
@@ -33,7 +34,9 @@ fun NoteBookChoice(db : DatabaseRequests) {
         }
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(items = notebooks, itemContent = { item ->
-                Text(text = "test")
+                item.forEach {
+                    Text(text = it.name)
+                }
             })
         }
     }
