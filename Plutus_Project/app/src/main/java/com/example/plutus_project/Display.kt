@@ -3,6 +3,7 @@ package com.example.plutus_project
 import android.app.DatePickerDialog
 import android.content.Context
 import android.widget.DatePicker
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -35,8 +36,17 @@ fun DrawTransaction(){
             }
         }
         Box(modifier = Modifier.fillMaxWidth()){
-            val mContext = LocalContext.current
-            timePicker(mContext)
+//            val mContext = LocalContext.current
+            timePicker()
+        }
+        Box(modifier = Modifier.fillMaxWidth()){
+            drawMotif()
+        }
+        Spacer(modifier = Modifier.height(150.dp))
+        Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
+            Button(onClick = { /*TODO*/ }) {
+                Text(text = "Valider")
+            }
         }
     }
 }
@@ -45,7 +55,7 @@ fun DrawTransaction(){
 @Composable
 fun drawAmount(){
     var amount by remember { mutableStateOf(TextFieldValue("")) }
-    TextField(value = amount, onValueChange = {amount = it}, Modifier.background(Color.White),
+    TextField(value = amount, onValueChange = {amount = it}, Modifier.background(Color.Transparent),
         placeholder = { Text(text = "Montant",color = Color.Gray)}
     )
 }
@@ -93,7 +103,7 @@ fun drawCurrency(){
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun timePicker( cxt : Context){
+fun timePicker(){
 
     // Fetching the Local Context
     val mContext = LocalContext.current
@@ -127,7 +137,9 @@ fun timePicker( cxt : Context){
         }, mYear, mMonth, mDay
     )
 
-    Row(modifier = Modifier.fillMaxWidth(),
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(5.dp),
         horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
         Text(text = " Date: ${mDate.value}", fontSize = 22.sp, textAlign = TextAlign.Center,modifier = Modifier.padding(10.dp))
 
@@ -135,6 +147,17 @@ fun timePicker( cxt : Context){
             Icon(imageVector = Icons.Filled.DateRange, contentDescription = "")
         }
     }
+}
+
+@Composable
+fun drawMotif(){
+    var motif by remember { mutableStateOf(TextFieldValue("")) }
+    TextField(value = motif, onValueChange = {motif = it},
+        Modifier
+            .background(Color.Transparent)
+            .fillMaxWidth(),
+        placeholder = { Text(text = "Motif",color = Color.Gray)}
+    )
 }
 
 
