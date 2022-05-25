@@ -50,7 +50,7 @@ class NoteDatabaseHelper(
     fun addNotebook(name : String) : Int {
         val writable_db = this.writableDatabase
         val values = ContentValues().apply {
-            put("name", "test")
+            put("name", name)
         }
         return writable_db.insert("Notebook", null, values).toInt()
     }
