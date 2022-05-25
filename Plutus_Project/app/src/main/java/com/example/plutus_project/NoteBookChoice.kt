@@ -3,6 +3,7 @@ package com.example.plutus_project
 import android.graphics.Paint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -64,7 +65,7 @@ fun NoteBookChoice(db : NoteDatabaseHelper) {
 fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : MutableState<List<Notebook>>) {
     val openDuplicate = remember { mutableStateOf(false) }
     val openRemove = remember { mutableStateOf(false) }
-    Row(Modifier.fillMaxSize().border(1.dp, Color.Black)  ) {
+    Row(Modifier.fillMaxSize().border(1.dp, Color.Black).clickable { /* TODO : Change window */ }) {
         Text(text = notebook.name)
         Button(onClick = { openDuplicate.value = true }) {
             Text(text = "Duplicate")
