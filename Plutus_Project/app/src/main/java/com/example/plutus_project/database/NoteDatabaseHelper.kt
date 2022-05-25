@@ -15,8 +15,8 @@ class NoteDatabaseHelper(
         const val CURRENT_VERSION = 1
 
         const val NOTEBOOK_TABLE = """CREATE TABLE Notebook(id INTEGER primary key autoincrement NOT NULL, name TEXT NOT NULL);"""
-        const val OPERATION_TABLE = """CREATE TABLE Operation(id INTEGER primary key autoincrement NOT NULL, text TEXT, date TEXT, value REAL, currency TEXT, location TEXT, notebook_id INTEGER NOT NULL, FOREIGN KEY (notebook_id) REFERENCES Notebook (id));"""
-        const val LABEL_TABLE = """CREATE TABLE Label(id INTEGER primary key autoincrement NOT NULL, text TEXT, operation_id INTEGER NOT NULL, FOREIGN KEY (operation_id) REFERENCES Operation (id));"""
+        const val OPERATION_TABLE = """CREATE TABLE Operation(id INTEGER primary key autoincrement NOT NULL, text TEXT, date TEXT, value REAL, currency TEXT, location TEXT, notebook_id INTEGER NOT NULL, FOREIGN KEY (notebook_id) REFERENCES Notebook (id) ON DELETE CASCADE);"""
+        const val LABEL_TABLE = """CREATE TABLE Label(id INTEGER primary key autoincrement NOT NULL, text TEXT, operation_id INTEGER NOT NULL, FOREIGN KEY (operation_id) REFERENCES Operation (id) ON DELETE CASCADE);"""
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -28,6 +28,14 @@ class NoteDatabaseHelper(
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         // to be implemented if the schema changes from oldVersion to newVersion
         // we use ALTER TABLE SQL statements to transform the tables
+    }
+
+    override fun onOpen(db: SQLiteDatabase?) {
+        super.onOpen(db)
+        if (db != null && !db.isReadOnly) {
+            // Enable foreign key constraints
+            db.execSQL("PRAGMA foreign_keys=ON;");
+        }
     }
 
     fun getAllNotebooks() : List<Notebook> {
@@ -53,5 +61,10 @@ class NoteDatabaseHelper(
             put("name", name)
         }
         return writable_db.insert("Notebook", null, values).toInt()
+    }
+
+    fun removeNotebook(id : Int) {
+        val writable_db = this.writableDatabase
+        writable_db.execSQL("DELETE FROM Notebook WHERE id =$id");
     }
 }

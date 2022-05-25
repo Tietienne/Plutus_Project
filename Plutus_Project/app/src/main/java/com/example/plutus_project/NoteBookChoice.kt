@@ -2,6 +2,7 @@ package com.example.plutus_project
 
 import android.graphics.Paint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,17 +27,15 @@ import com.example.plutus_project.items.Notebook
 @Composable
 fun NoteBookChoice(db : NoteDatabaseHelper) {
     val openCreate = remember { mutableStateOf(false) }
-    val notebooks = remember { mutableListOf(db.getAllNotebooks())}
+    val notebooks = remember { mutableStateOf(db.getAllNotebooks())}
     Column(modifier = Modifier.fillMaxSize()) {
         Text(text = "Plutus", modifier = Modifier.fillMaxWidth(), fontSize = 30.sp, textAlign = TextAlign.Center)
         Button(onClick = { openCreate.value = true }, modifier = Modifier.align(Alignment.End)) {
             Text(text = "Add")
         }
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(items = notebooks, itemContent = { item ->
-                item.forEach {
-                    Text(text = it.name)
-                }
+            items(items = notebooks.value, itemContent = { item ->
+                NotebookDisplay(item, db, notebooks)
             })
         }
     }
@@ -52,8 +51,57 @@ fun NoteBookChoice(db : NoteDatabaseHelper) {
                 Column(Modifier.fillMaxSize()) {
                     TextField(value = text, onValueChange = {newText -> text = newText},
                         label = { Text(text = "Notebook name") }, placeholder = { Text(text = "Write notebook's name") })
-                    Button(onClick = { val newId = db.addNotebook(text.text); notebooks.add(listOf(Notebook(newId, text.text))); openCreate.value = false }) {
+                    Button(onClick = { val newId = db.addNotebook(text.text); notebooks.value = db.getAllNotebooks(); openCreate.value = false }) {
                         Text(text = "Create")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : MutableState<List<Notebook>>) {
+    val openDuplicate = remember { mutableStateOf(false) }
+    val openRemove = remember { mutableStateOf(false) }
+    Row(Modifier.fillMaxSize().border(1.dp, Color.Black)  ) {
+        Text(text = notebook.name)
+        Button(onClick = { openDuplicate.value = true }) {
+            Text(text = "Duplicate")
+        }
+        Button(onClick = { openRemove.value = true }) {
+            Text(text = "Remove")
+        }
+    }
+    val dialogWidth = 200.dp
+    val dialogHeight = 200.dp
+    var text by remember { mutableStateOf(TextFieldValue("")) }
+    if (openDuplicate.value) {
+        Dialog(onDismissRequest = { openDuplicate.value = false }) {
+            Box(
+                Modifier
+                    .size(dialogWidth, dialogHeight)
+                    .background(Color.White)) {
+                Column(Modifier.fillMaxSize()) {
+                    TextField(value = text, onValueChange = {newText -> text = newText},
+                        label = { Text(text = "Duplicated Notebook name") }, placeholder = { Text(text = "Write notebook's name") })
+                    Button(onClick = { /* TODO */ openDuplicate.value = false }) {
+                        Text(text = "Duplicate")
+                    }
+                }
+            }
+        }
+    }
+    if (openRemove.value) {
+        Dialog(onDismissRequest = { openRemove.value = false }) {
+            Box(
+                Modifier
+                    .size(dialogWidth, dialogHeight)
+                    .background(Color.White)) {
+                Column(Modifier.fillMaxSize()) {
+                    Text("Do you really want to remove this Notebook : ${notebook.name}")
+                    Button(onClick = { db.removeNotebook(notebook.id); notebooks.value = db.getAllNotebooks() ; openRemove.value = false }) {
+                        Text(text = "Remove", color = Color.Red)
                     }
                 }
             }
