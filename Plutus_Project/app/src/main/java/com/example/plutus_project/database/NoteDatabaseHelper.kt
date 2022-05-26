@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.example.plutus_project.items.Notebook
+import com.example.plutus_project.items.Transaction
 
 class NoteDatabaseHelper(
     context: Context, DATABASE_NAME: String
@@ -70,5 +71,19 @@ class NoteDatabaseHelper(
     fun removeNotebook(id : Int) {
         val writable_db = this.writableDatabase
         writable_db.execSQL("DELETE FROM Notebook WHERE id =$id");
+    }
+
+    fun addTransaction(transaction: Transaction): Int{
+        val writableDB = this.writableDatabase;
+        val values = ContentValues().apply {
+//            date TEXT, value REAL, currency TEXT, location TEXT, notebook_id
+            put("text" , transaction.text)
+            put("date",transaction.dateTime)
+            put("value",transaction.amount)
+            put("currency",transaction.currency)
+            put("notebook_id",transaction.notebookId)
+        }
+        return writableDB.insert("Operation",null,values).toInt()
+
     }
 }

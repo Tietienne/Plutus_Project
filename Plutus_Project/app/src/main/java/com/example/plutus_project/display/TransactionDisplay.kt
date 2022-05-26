@@ -1,9 +1,8 @@
 package com.example.plutus_project
 
 import android.app.DatePickerDialog
-import android.os.Build
 import android.widget.DatePicker
-import androidx.annotation.RequiresApi
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,42 +16,49 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.items.Transaction
 import java.util.*
 
 @Composable
-fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transaction) -> Unit){
+fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transaction) -> Unit,db : NoteDatabaseHelper){
 
     var amount by remember { mutableStateOf(transaction.amount) }
     var currency by remember { mutableStateOf(transaction.currency) }
     var date by remember { mutableStateOf(transaction.dateTime) }
+    var motif by remember { mutableStateOf(transaction.text)}
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxWidth()){
             Row(Modifier.fillMaxWidth()) {
                 Column(Modifier.weight(6f)) {
-                    drawAmount(amount,onAmountChange = {amount = it})
+                    drawAmount(amount.toString(),onAmountChange = {
+                        amount = if (it == "")
+                            0
+                        else
+                            it.toInt()
+                        })
                 }
                 Column(Modifier.weight(4f)) {
                     drawCurrency(currency, onCurrencyChange = {currency = it})                }
             }
         }
         Box(modifier = Modifier.fillMaxWidth()){
-//            val mContext = LocalContext.current
             timePicker(date,onDateChange = {date = it})
         }
         Box(modifier = Modifier.fillMaxWidth()){
-            drawMotif()
+            drawMotif(motif,onMotifChange = {motif = it})
         }
         Spacer(modifier = Modifier.height(150.dp))
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
-            Button(onClick = { /*TODO add to database*/
-                var transaction = Transaction(transaction.id,date,amount,currency);
-                print(transaction);
+            val context = LocalContext.current
+            Button(onClick = {
+                /*TODO add to database*/
+                var result = db.addTransaction(transaction = transaction);
+                Toast.makeText(context,"$date + $amount + $currency + $motif + $result", Toast.LENGTH_SHORT).show()
             }) {
                 Text(text = "Valider")
             }
@@ -63,9 +69,9 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
 
 
 @Composable
-fun drawAmount(amount: Int, onAmountChange : (Int) -> Unit){
+fun drawAmount(amount: String, onAmountChange : (String) -> Unit){
 //    var amount by remember { mutableStateOf(TextFieldValue("")) }
-    TextField(value = "$amount", onValueChange = {onAmountChange(it.toInt())}, Modifier.background(Color.Transparent),
+    TextField(value = "$amount", onValueChange = {onAmountChange(it)}, Modifier.background(Color.Transparent),
         placeholder = { Text(text = "Montant",color = Color.Gray)}
     )
 }
@@ -74,7 +80,7 @@ fun drawAmount(amount: Int, onAmountChange : (Int) -> Unit){
 fun drawCurrency(currency: String, onCurrencyChange : (String) -> Unit){
 
     var expanded by remember{ mutableStateOf(false)}
-    val items = listOf("EUR", "DOLLAR", "RMB", "D", "E", "F")
+    val items = listOf("EUR", "GBP", "RMB", "HKD", "USD")
     var selectedIndex by remember { mutableStateOf(0) }
 
     Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center) {
@@ -88,7 +94,6 @@ fun drawCurrency(currency: String, onCurrencyChange : (String) -> Unit){
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-//                text = items[selectedIndex],
                 text = currency,
                 fontSize = 18.sp,)
             Icon(imageVector = Icons.Filled.ArrowDropDown, contentDescription = "")
@@ -166,9 +171,8 @@ fun timePicker(date : String, onDateChange : (String) -> Unit){
 }
 
 @Composable
-fun drawMotif(){
-    var motif by remember { mutableStateOf(TextFieldValue("")) }
-    TextField(value = motif, onValueChange = {motif = it},
+fun drawMotif(motif: String, onMotifChange : (String) -> Unit){
+    TextField(value = motif, onValueChange = {onMotifChange(it)},
         Modifier
             .background(Color.Transparent)
             .fillMaxWidth(),
