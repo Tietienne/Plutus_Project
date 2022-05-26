@@ -1,9 +1,11 @@
 package com.example.plutus_project
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -12,6 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.plutus_project.database.DatabaseRequests
 import com.example.plutus_project.database.NoteDatabaseHelper
+import com.example.plutus_project.items.Transaction
 import com.example.plutus_project.ui.theme.Plutus_ProjectTheme
 
 class MainActivity : ComponentActivity() {
@@ -27,5 +30,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    Plutus_ProjectTheme {
+//        DrawTransaction()
+        var transaction = Transaction(1,"25/5/2022",0,"EUR")
+        TransactionEditor(transaction = transaction, onTransactionChange = {transaction = it })
+
     }
 }
