@@ -15,7 +15,7 @@ class NoteDatabaseHelper(
         const val CURRENT_VERSION = 1
 
         const val NOTEBOOK_TABLE = """CREATE TABLE Notebook(id INTEGER primary key autoincrement NOT NULL, name TEXT NOT NULL);"""
-        const val OPERATION_TABLE = """CREATE TABLE Operation(id INTEGER primary key autoincrement NOT NULL, text TEXT, date TEXT, value REAL, currency TEXT, location TEXT, notebook_id INTEGER NOT NULL, FOREIGN KEY (notebook_id) REFERENCES Notebook (id));"""
+        const val OPERATION_TABLE = """CREATE TABLE Operation(id INTEGER primary key autoincrement NOT NULL, date TEXT, value REAL, currency TEXT, location TEXT, notebook_id INTEGER NOT NULL, text TEXT, FOREIGN KEY (notebook_id) REFERENCES Notebook (id));"""
         const val LABEL_TABLE = """CREATE TABLE Label(id INTEGER primary key autoincrement NOT NULL, text TEXT, operation_id INTEGER NOT NULL, FOREIGN KEY (operation_id) REFERENCES Operation (id));"""
     }
 
