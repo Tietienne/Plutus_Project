@@ -82,7 +82,7 @@ fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : Mut
                 Column(Modifier.fillMaxSize()) {
                     TextField(value = text, onValueChange = {newText -> text = newText},
                         label = { Text(text = "Duplicated Notebook name") }, placeholder = { Text(text = "Write notebook's name") })
-                    Button(onClick = { /* TODO */ openDuplicate.value = false }) {
+                    Button(onClick = { /* TODO : duplicate notebook */ openDuplicate.value = false }) {
                         Text(text = "Duplicate")
                     }
                 }

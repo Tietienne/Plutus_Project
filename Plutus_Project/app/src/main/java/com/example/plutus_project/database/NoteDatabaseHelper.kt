@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 import com.example.plutus_project.items.Budget
 import com.example.plutus_project.items.Label
 import com.example.plutus_project.items.Notebook
@@ -97,7 +98,12 @@ class NoteDatabaseHelper(
         return writable_db.insert("Label", null, values).toInt()
     }
 
-    fun getLabel(id : Int) : Label? {
+    fun removeLabel(id : Int) {
+        val writable_db = this.writableDatabase
+        writable_db.execSQL("DELETE FROM Label WHERE id =$id");
+    }
+
+    fun getLabel(id : Int) : Label {
         val readable_db = this.readableDatabase
         val selectQuery = "SELECT * FROM Label WHERE id=$id"
         val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
@@ -110,7 +116,7 @@ class NoteDatabaseHelper(
                 }
             }
         }
-        return null
+        return Label(-1, "")
     }
 
     fun getAllLabels() : List<Label> {
@@ -150,10 +156,15 @@ class NoteDatabaseHelper(
                     val budgetId = Integer.parseInt(cursor.getString(0))
                     val budgetValue = cursor.getString(1).toFloat()
                     val label = getLabel(Integer.parseInt(cursor.getString(2)))
-                    label?.let { Budget(budgetId, budgetValue, it) }?.let { budgets.add(it) }
+                    budgets.add(Budget(budgetId, budgetValue, label))
                 }
             }
         }
         return budgets
+    }
+
+    fun removeBudget(id : Int) {
+        val writable_db = this.writableDatabase
+        writable_db.execSQL("DELETE FROM Budget WHERE id =$id");
     }
 }

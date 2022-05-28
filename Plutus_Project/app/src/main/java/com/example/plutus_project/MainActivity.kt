@@ -25,7 +25,8 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     val db = NoteDatabaseHelper(LocalContext.current, "plutusDb")
-                    NoteBookChoice(db)
+                    //NoteBookChoice(db)
+                    pageState(db)
                 }
             }
         }
