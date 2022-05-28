@@ -5,6 +5,9 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
+import com.example.plutus_project.items.Budget
+import com.example.plutus_project.items.Label
 import com.example.plutus_project.items.Notebook
 import com.example.plutus_project.items.Transaction
 
@@ -85,5 +88,83 @@ class NoteDatabaseHelper(
         }
         return writableDB.insert("Operation",null,values).toInt()
 
+    }
+
+    fun addLabel(text : String) : Int {
+        val writable_db = this.writableDatabase
+        val values = ContentValues().apply {
+            put("text", text)
+        }
+        return writable_db.insert("Label", null, values).toInt()
+    }
+
+    fun removeLabel(id : Int) {
+        val writable_db = this.writableDatabase
+        writable_db.execSQL("DELETE FROM Label WHERE id =$id");
+    }
+
+    fun getLabel(id : Int) : Label {
+        val readable_db = this.readableDatabase
+        val selectQuery = "SELECT * FROM Label WHERE id=$id"
+        val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()) {
+                    val labelId = Integer.parseInt(cursor.getString(0))
+                    val labelText = cursor.getString(1)
+                    return Label(labelId, labelText)
+                }
+            }
+        }
+        return Label(-1, "")
+    }
+
+    fun getAllLabels() : List<Label> {
+        val readable_db = this.readableDatabase
+        val labels = ArrayList<Label>()
+        val selectQuery = "SELECT * FROM Label"
+        val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()) {
+                    val labelId = Integer.parseInt(cursor.getString(0))
+                    val labelText = cursor.getString(1)
+                    labels.add(Label(labelId, labelText))
+                }
+            }
+        }
+        return labels
+    }
+
+    fun addBudget(value : Float, label : Label) : Int {
+        val writable_db = this.writableDatabase
+        val values = ContentValues().apply {
+            put("value", value)
+            put("label_id", label.id)
+        }
+        return writable_db.insert("Budget", null, values).toInt()
+    }
+
+    fun getAllBudgets() : List<Budget> {
+        val readable_db = this.readableDatabase
+        val budgets = ArrayList<Budget>()
+        val selectQuery = "SELECT * FROM Budget"
+        val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()) {
+                    val budgetId = Integer.parseInt(cursor.getString(0))
+                    val budgetValue = cursor.getString(1).toFloat()
+                    val label = getLabel(Integer.parseInt(cursor.getString(2)))
+                    budgets.add(Budget(budgetId, budgetValue, label))
+                }
+            }
+        }
+        return budgets
+    }
+
+    fun removeBudget(id : Int) {
+        val writable_db = this.writableDatabase
+        writable_db.execSQL("DELETE FROM Budget WHERE id =$id");
     }
 }
