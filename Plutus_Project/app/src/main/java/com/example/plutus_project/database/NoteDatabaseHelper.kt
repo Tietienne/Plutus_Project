@@ -89,10 +89,10 @@ class NoteDatabaseHelper(
 
     }
 
-    fun addLabel(label : Label) : Int {
+    fun addLabel(text : String) : Int {
         val writable_db = this.writableDatabase
         val values = ContentValues().apply {
-            put("text", label.text)
+            put("text", text)
         }
         return writable_db.insert("Label", null, values).toInt()
     }
@@ -130,11 +130,11 @@ class NoteDatabaseHelper(
         return labels
     }
 
-    fun addBudget(budget : Budget) : Int {
+    fun addBudget(value : Float, label : Label) : Int {
         val writable_db = this.writableDatabase
         val values = ContentValues().apply {
-            put("value", budget.value)
-            put("label_id", budget.label.id)
+            put("value", value)
+            put("label_id", label.id)
         }
         return writable_db.insert("Budget", null, values).toInt()
     }
