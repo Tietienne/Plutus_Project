@@ -12,7 +12,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.plutus_project.database.DatabaseRequests
 import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.items.Transaction
 import com.example.plutus_project.ui.theme.Plutus_ProjectTheme
