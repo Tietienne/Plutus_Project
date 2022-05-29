@@ -1,11 +1,14 @@
 package com.example.plutus_project
 
 import android.app.DatePickerDialog
+import android.os.Build
 import android.widget.DatePicker
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -16,13 +19,17 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.items.Transaction
+import java.time.LocalDate
 import java.util.*
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transaction) -> Unit,db : NoteDatabaseHelper){
 
@@ -47,7 +54,12 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
             }
         }
         Box(modifier = Modifier.fillMaxWidth()){
-            timePicker(date,onDateChange = {date = it})
+            //FIXME today
+            timePicker(date) {
+                date = it
+                if (date == "Aujourd'hui")
+                    date = LocalDate.now().toString()
+            }
         }
         Box(modifier = Modifier.fillMaxWidth()){
             drawMotif(motif,onMotifChange = {motif = it})
@@ -56,8 +68,7 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
             val context = LocalContext.current
             Button(onClick = {
-                /*TODO add to database*/
-                var result = db.addTransaction(transaction = transaction);
+                var result = db.addTransaction(transaction = transaction)
                 Toast.makeText(context,"$date + $amount + $currency + $motif + $result", Toast.LENGTH_SHORT).show()
             }) {
                 Text(text = "Valider")
@@ -72,7 +83,8 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
 fun drawAmount(amount: String, onAmountChange : (String) -> Unit){
 //    var amount by remember { mutableStateOf(TextFieldValue("")) }
     TextField(value = "$amount", onValueChange = {onAmountChange(it)}, Modifier.background(Color.Transparent),
-        placeholder = { Text(text = "Montant",color = Color.Gray)}
+        placeholder = { Text(text = "Montant",color = Color.Gray)},
+        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
     )
 }
 
@@ -143,23 +155,25 @@ fun timePicker(date : String, onDateChange : (String) -> Unit){
 
     // Declaring a string value to
     // store date in string format
-    val mDate = remember { mutableStateOf(date) }
+//    val mDate = remember { mutableStateOf("") }
 
     // Declaring DatePickerDialog and setting
     // initial values as current values (present year, month and day)
     val mDatePickerDialog = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            mDate.value = "$mDayOfMonth/${mMonth+1}/$mYear"
-            onDateChange(mDate.value)
-        }, Integer.valueOf(mDate.value.split("/")[2]), Integer.valueOf(mDate.value.split("/")[1])-1, Integer.valueOf(mDate.value.split("/")[0])
+//            date.value = "$mYear-${mMonth+1}-$mDayOfMonth"
+//            onDateChange(date.value)
+//            date = "$mYear-${mMonth+1}-$mDayOfMonth"
+            onDateChange("$mYear-${mMonth+1}-$mDayOfMonth")
+        }, mYear, mMonth, mDay
     )
 
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(5.dp),
         horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
-        Text(text = " Date: ${mDate.value}", fontSize = 22.sp, textAlign = TextAlign.Center,modifier = Modifier.padding(10.dp))
+        Text(text = "${date}", fontSize = 18.sp, textAlign = TextAlign.Center,modifier = Modifier.padding(10.dp),color = Color.Gray)
 
         Box(Modifier.clickable {
             mDatePickerDialog.show()
