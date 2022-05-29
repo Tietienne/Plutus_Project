@@ -59,7 +59,7 @@ class ExampleUnitTest {
     }
 
     private fun resetAndGetDatabase() : SQLiteDatabase {
-        instrumentationContext.deleteDatabase(DATABASE_NAME);
+        instrumentationContext.deleteDatabase(DATABASE_NAME)
         val dbHelper = NoteDatabaseHelper(instrumentationContext, DATABASE_NAME)
         return dbHelper.writableDatabase
     }

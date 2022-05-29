@@ -22,7 +22,7 @@ class NoteDatabaseHelper(
         const val OPERATION_TABLE = """CREATE TABLE Operation(id INTEGER primary key autoincrement NOT NULL, text TEXT, date TEXT, value REAL, currency TEXT, location TEXT, notebook_id INTEGER NOT NULL, FOREIGN KEY (notebook_id) REFERENCES Notebook (id) ON DELETE CASCADE);"""
         const val LABEL_TABLE = """CREATE TABLE Label(id INTEGER primary key autoincrement NOT NULL, text TEXT);"""
         const val OP_LAB_TABLE = """CREATE TABLE OpLab(operation_id INTEGER NOT NULL, label_id INTEGER NOT NULL, FOREIGN KEY (label_id) REFERENCES Label (id) ON DELETE CASCADE, FOREIGN KEY (operation_id) REFERENCES Operation (id) ON DELETE CASCADE);"""
-        const val BUDGET_TABLE = """CREATE TABLE Budget(id INTEGER primary key autoincrement NOT NULL, value REAL, label_id INTEGER NOT NULL, FOREIGN KEY (label_id) REFERENCES Label (id) ON DELETE CASCADE);"""
+        const val BUDGET_TABLE = """CREATE TABLE Budget(id INTEGER primary key autoincrement NOT NULL, value REAL, date TEXT, label_id INTEGER NOT NULL, FOREIGN KEY (label_id) REFERENCES Label (id) ON DELETE CASCADE);"""
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -136,10 +136,11 @@ class NoteDatabaseHelper(
         return labels
     }
 
-    fun addBudget(value : Float, label : Label) : Int {
+    fun addBudget(value : Float, date : String, label : Label) : Int {
         val writable_db = this.writableDatabase
         val values = ContentValues().apply {
             put("value", value)
+            put("date", date)
             put("label_id", label.id)
         }
         return writable_db.insert("Budget", null, values).toInt()
@@ -155,8 +156,9 @@ class NoteDatabaseHelper(
                 while (moveToNext()) {
                     val budgetId = Integer.parseInt(cursor.getString(0))
                     val budgetValue = cursor.getString(1).toFloat()
-                    val label = getLabel(Integer.parseInt(cursor.getString(2)))
-                    budgets.add(Budget(budgetId, budgetValue, label))
+                    val budgetDate = cursor.getString(2)
+                    val label = getLabel(Integer.parseInt(cursor.getString(3)))
+                    budgets.add(Budget(budgetId, budgetValue, budgetDate, label))
                 }
             }
         }
