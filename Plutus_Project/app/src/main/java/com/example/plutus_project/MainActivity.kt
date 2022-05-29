@@ -3,6 +3,7 @@ package com.example.plutus_project
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -17,6 +18,7 @@ import com.example.plutus_project.items.Transaction
 import com.example.plutus_project.ui.theme.Plutus_ProjectTheme
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -27,6 +29,7 @@ class MainActivity : ComponentActivity() {
                     val db = NoteDatabaseHelper(LocalContext.current, "plutusDb")
                     //NoteBookChoice(db)
                     pageState(db)
+                    //DefaultPreview()
                 }
             }
         }
