@@ -76,6 +76,51 @@ class NoteDatabaseHelper(
         writable_db.execSQL("DELETE FROM Notebook WHERE id =$id");
     }
 
+    fun getAllTransactions(): List<Transaction> {
+        val readableDB = this.readableDatabase
+        val transactions = ArrayList<Transaction>()
+        val selectQuery = "SELECT * FROM Operation"
+        val cursor : Cursor = readableDB.rawQuery(selectQuery,null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()){
+//id INTEGER primary key autoincrement NOT NULL, text TEXT, date TEXT, value REAL, currency TEXT, location TEXT, notebook_id INTEGER NOT NULL, FOREIGN KEY (notebook_id) REFERENCES Notebook (id) ON DELETE CASCADE);"""
+
+                    val id = Integer.parseInt(cursor.getString(0))
+                    val motif = cursor.getString(1)
+                    val date = cursor.getString(2)
+                    val amount = Integer.parseInt(cursor.getString(3))
+//                    val amount = 0
+                    val currency = cursor.getString(4)
+                    val notebookId = Integer.parseInt(cursor.getString(6))
+//                    val notebookId = 0
+                    transactions.add(Transaction(id,date,amount,currency,motif,notebookId))
+                }
+            }
+        }
+        return transactions;
+    }
+
+    fun getTransactionById(id : Int) : Transaction{
+        val readableDB = this.readableDatabase
+        val selectQuery = "SELECT * FROM Operation WHERE id=$id"
+        val cursor: Cursor = readableDB.rawQuery(selectQuery, null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()) {
+                    val id = Integer.parseInt(cursor.getString(0))
+                    val motif = cursor.getString(1)
+                    val date = cursor.getString(2)
+                    val amount = Integer.parseInt(cursor.getString(3))
+                    val currency = cursor.getString(4)
+                    val notebookId = Integer.parseInt(cursor.getString(6))
+                    return  Transaction(id,date,amount,currency,motif,notebookId)
+                }
+            }
+        }
+        return Transaction(-1, "",0,"","",-1)
+    }
+
     fun addTransaction(transaction: Transaction): Int{
         val writableDB = this.writableDatabase;
         val values = ContentValues().apply {
@@ -87,7 +132,11 @@ class NoteDatabaseHelper(
             put("notebook_id",transaction.notebookId)
         }
         return writableDB.insert("Operation",null,values).toInt()
+    }
 
+    fun removeTransaction(id: Int){
+        val writableDB = this.writableDatabase
+        writableDB.execSQL("DELETE FROM Operation WHERE id = $id")
     }
 
     fun addLabel(text : String) : Int {
@@ -169,4 +218,6 @@ class NoteDatabaseHelper(
         val writable_db = this.writableDatabase
         writable_db.execSQL("DELETE FROM Budget WHERE id =$id");
     }
+
+
 }

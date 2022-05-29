@@ -29,7 +29,7 @@ fun TransactionManagement(db : NoteDatabaseHelper){
 
     val onCreateTransaction = remember{ mutableStateOf(false)}
     //FIXME getAllTransactions()
-    val transactions = remember { mutableStateOf(db.getAllTransactions()) }
+//    val transactions = remember { mutableStateOf(db.getAllTransactions()) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Text(text = "Transaction Management", modifier = Modifier.fillMaxWidth(), fontSize = 30.sp, textAlign = TextAlign.Center)

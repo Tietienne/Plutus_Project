@@ -153,18 +153,11 @@ fun timePicker(date : String, onDateChange : (String) -> Unit){
 
     mCalendar.time = Date()
 
-    // Declaring a string value to
-    // store date in string format
-//    val mDate = remember { mutableStateOf("") }
-
     // Declaring DatePickerDialog and setting
     // initial values as current values (present year, month and day)
     val mDatePickerDialog = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-//            date.value = "$mYear-${mMonth+1}-$mDayOfMonth"
-//            onDateChange(date.value)
-//            date = "$mYear-${mMonth+1}-$mDayOfMonth"
             onDateChange("$mYear-${mMonth+1}-$mDayOfMonth")
         }, mYear, mMonth, mDay
     )
