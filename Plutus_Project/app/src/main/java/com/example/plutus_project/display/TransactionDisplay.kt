@@ -2,6 +2,7 @@ package com.example.plutus_project
 
 import android.app.DatePickerDialog
 import android.os.Build
+import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -24,19 +25,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.plutus_project.database.NoteDatabaseHelper
+import com.example.plutus_project.items.Notebook
 import com.example.plutus_project.items.Transaction
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transaction) -> Unit,db : NoteDatabaseHelper){
+fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transaction) -> Unit,db : NoteDatabaseHelper, onAddingTransaction : () -> Unit){
 
     var amount by remember { mutableStateOf(transaction.amount) }
     var currency by remember { mutableStateOf(transaction.currency) }
     var date by remember { mutableStateOf(transaction.dateTime) }
     var motif by remember { mutableStateOf(transaction.text)}
+
+    if (date == "Aujourd'hui") {
+        val time = LocalDateTime.now()
+        date = "${time.dayOfMonth}/${time.monthValue}/${time.year}"
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxWidth()){
@@ -54,11 +62,8 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
             }
         }
         Box(modifier = Modifier.fillMaxWidth()){
-            //FIXME today
             timePicker(date) {
                 date = it
-                if (date == "Aujourd'hui")
-                    date = LocalDate.now().toString()
             }
         }
         Box(modifier = Modifier.fillMaxWidth()){
@@ -68,8 +73,9 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
             val context = LocalContext.current
             Button(onClick = {
-                var result = db.addTransaction(transaction = transaction)
+                val result = db.addTransaction(date, amount, currency, motif, transaction.notebookId)
                 Toast.makeText(context,"$date + $amount + $currency + $motif + $result", Toast.LENGTH_SHORT).show()
+                onAddingTransaction()
             }) {
                 Text(text = "Valider")
             }
