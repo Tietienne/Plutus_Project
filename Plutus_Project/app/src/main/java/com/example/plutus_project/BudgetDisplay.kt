@@ -30,17 +30,17 @@ import java.time.LocalDateTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun pageState(db : NoteDatabaseHelper) {
+fun budgetPageState(db : NoteDatabaseHelper) {
     var time = LocalDateTime.now()
     var currentDate = "${time.dayOfMonth}/${time.monthValue}/${time.year}"
 
-    var gameState by rememberSaveable { mutableStateOf(BudgetState.ADDING_BUDGET) }
+    var budgetState by rememberSaveable { mutableStateOf(BudgetState.ADDING_BUDGET) }
     var label by remember { mutableStateOf(Label(0, "")) }
     var amount by remember { mutableStateOf(0f) }
     var date by remember { mutableStateOf(currentDate) }
-    when(gameState) {
-        BudgetState.ADDING_BUDGET -> budgetPage(db, label, amount, date, { gameState = BudgetState.CHOOSING_LABEL }, {amount = it}, {date = it})
-        BudgetState.CHOOSING_LABEL -> chooseLabelPage(db) { label = it; gameState = BudgetState.ADDING_BUDGET }
+    when(budgetState) {
+        BudgetState.ADDING_BUDGET -> budgetPage(db, label, amount, date, { budgetState = BudgetState.CHOOSING_LABEL }, {amount = it}, {date = it})
+        BudgetState.CHOOSING_LABEL -> chooseLabelPage(db) { label = it; budgetState = BudgetState.ADDING_BUDGET }
     }
 }
 

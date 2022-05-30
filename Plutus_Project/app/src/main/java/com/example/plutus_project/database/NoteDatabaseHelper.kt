@@ -121,15 +121,15 @@ class NoteDatabaseHelper(
         return Transaction(-1, "",0,"","",-1)
     }
 
-    fun addTransaction(transaction: Transaction): Int{
+    fun addTransaction(dateTime: String, amount : Int, currency: String, text : String, notebookId : Int): Int{
         val writableDB = this.writableDatabase;
         val values = ContentValues().apply {
 //            date TEXT, value REAL, currency TEXT, location TEXT, notebook_id
-            put("text" , transaction.text)
-            put("date",transaction.dateTime)
-            put("value",transaction.amount)
-            put("currency",transaction.currency)
-            put("notebook_id",transaction.notebookId)
+            put("text",text)
+            put("date",dateTime)
+            put("value",amount)
+            put("currency",currency)
+            put("notebook_id",notebookId)
         }
         return writableDB.insert("Operation",null,values).toInt()
     }

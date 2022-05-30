@@ -10,6 +10,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,10 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.plutus_project.database.NoteDatabaseHelper
+import com.example.plutus_project.items.BudgetState
 import com.example.plutus_project.items.Notebook
 
 @Composable
-fun NoteBookChoice(db : NoteDatabaseHelper) {
+fun NoteBookChoice(db : NoteDatabaseHelper, showNote : (Notebook) -> Unit) {
     val openCreate = remember { mutableStateOf(false) }
     val notebooks = remember { mutableStateOf(db.getAllNotebooks())}
     Column(modifier = Modifier.fillMaxSize()) {
@@ -32,7 +34,7 @@ fun NoteBookChoice(db : NoteDatabaseHelper) {
         }
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(items = notebooks.value, itemContent = { item ->
-                NotebookDisplay(item, db, notebooks)
+                NotebookDisplay(item, db, notebooks, showNote)
             })
         }
     }
@@ -58,10 +60,10 @@ fun NoteBookChoice(db : NoteDatabaseHelper) {
 }
 
 @Composable
-fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : MutableState<List<Notebook>>) {
+fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : MutableState<List<Notebook>>, showNote : (Notebook) -> Unit) {
     val openDuplicate = remember { mutableStateOf(false) }
     val openRemove = remember { mutableStateOf(false) }
-    Row(Modifier.fillMaxSize().border(1.dp, Color.Black).clickable { /* TODO : Change window */ }) {
+    Row(Modifier.fillMaxSize().border(1.dp, Color.Black).clickable { showNote(notebook) }) {
         Text(text = notebook.name)
         Button(onClick = { openDuplicate.value = true }) {
             Text(text = "Duplicate")
