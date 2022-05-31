@@ -46,16 +46,8 @@ fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook){
 
     val dialogWidth = 400.dp
     val dialogHeight = 600.dp
-//    var text by remember { mutableStateOf(TextFieldValue("")) }
 
     if (onCreateTransaction.value) {
-
-//        db.addNotebook("myNotebook")
-//        var notebooks = db.getAllNotebooks()
-//        var id = notebooks[0].id
-//        var transaction = Transaction(1,"Aujourd'hui",0,"EUR","",id)
-//        TransactionEditor(transaction = transaction, onTransactionChange = {transaction = it },db)
-
 
         Dialog(onDismissRequest = { onCreateTransaction.value = false }) {
 

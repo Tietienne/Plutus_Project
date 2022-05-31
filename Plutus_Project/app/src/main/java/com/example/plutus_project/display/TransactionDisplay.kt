@@ -7,8 +7,11 @@ import android.widget.DatePicker
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -24,7 +27,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.example.plutus_project.database.NoteDatabaseHelper
+import com.example.plutus_project.display.LabelChoiceEditor
+import com.example.plutus_project.items.Label
 import com.example.plutus_project.items.Notebook
 import com.example.plutus_project.items.Transaction
 import java.time.LocalDate
@@ -58,7 +64,8 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
                         })
                 }
                 Column(Modifier.weight(4f)) {
-                    drawCurrency(currency, onCurrencyChange = {currency = it})                }
+                    drawCurrency(currency, onCurrencyChange = {currency = it})
+                }
             }
         }
         Box(modifier = Modifier.fillMaxWidth()){
@@ -69,7 +76,20 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
         Box(modifier = Modifier.fillMaxWidth()){
             drawMotif(motif,onMotifChange = {motif = it})
         }
-        Spacer(modifier = Modifier.height(150.dp))
+        Box(modifier = Modifier.fillMaxWidth()) {
+            drawLabelChoice()
+        }
+        Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.CenterEnd) {
+            Button(onClick = {
+                /* TODO : ADD label to transaction */
+            }) {
+                Text(text = "Ajouter étiquette")
+            }
+        }
+        Box(modifier = Modifier.fillMaxWidth().height(250.dp)) {
+            displayAllLabels()
+        }
+        Spacer(modifier = Modifier.height(30.dp))
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
             val context = LocalContext.current
             Button(onClick = {
@@ -190,6 +210,41 @@ fun drawMotif(motif: String, onMotifChange : (String) -> Unit){
             .fillMaxWidth(),
         placeholder = { Text(text = "Motif",color = Color.Gray)}
     )
+}
+
+
+@Composable
+fun drawLabelChoice() {
+    Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
+        LabelChoiceEditor()
+    }
+}
+
+@Composable
+fun displayAllLabels() {
+    var labels = ArrayList<Label>()
+    labels.add(Label(-1, "test"))
+    labels.add(Label(-1, "test"))
+    labels.add(Label(-1, "test"))
+    labels.add(Label(-1, "test"))
+    labels.add(Label(-1, "test"))
+    labels.add(Label(-1, "test"))
+    labels.add(Label(-1, "test"))
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(items = labels, itemContent = { item ->
+            LabelDisplay(item)
+        })
+    }
+}
+
+@Composable
+fun LabelDisplay(label : Label) {
+    Row(Modifier.fillMaxSize().border(1.dp, Color.Black)) {
+        Text(text = label.text)
+        Button(onClick = { /* TODO : remove instantly label */ }) {
+            Text(text = "Remove")
+        }
+    }
 }
 
 
