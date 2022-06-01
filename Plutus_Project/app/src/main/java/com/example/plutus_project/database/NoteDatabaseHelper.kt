@@ -301,4 +301,31 @@ class NoteDatabaseHelper(
         return false
     }
 
+    fun searchTransactions(dateBegin : String, dateEnd : String, amountMin : Int, amountMax : Int, motif : String, labels : List<Label>) : List<Transaction> {
+        val readable_db = this.readableDatabase
+        val transactions = ArrayList<Transaction>()
+        Log.v("test", dateBegin)
+        Log.v("test", dateEnd)
+        val selectQuery = if (labels.isNotEmpty()) {
+            "SELECT * FROM Operation INNER JOIN OpLab on operation_id = id WHERE date <= '$dateEnd' AND date >= '$dateBegin' AND value <= '$amountMax' AND value >= '$amountMin' AND text LIKE '%$motif%' AND label_id IN " + labels.joinToString(", ", "(", ")")
+        } else {
+            "SELECT * FROM Operation WHERE date <= '$dateEnd' AND date >= '$dateBegin' AND value <= '$amountMax' AND value >= '$amountMin'"
+        }
+        val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()) {
+                    val id = Integer.parseInt(cursor.getString(0))
+                    val text = cursor.getString(1)
+                    val date = cursor.getString(2)
+                    val amount = Integer.parseInt(cursor.getString(3))
+                    val currency = cursor.getString(4)
+                    val notebookId = Integer.parseInt(cursor.getString(6))
+                    transactions.add(Transaction(id,date,amount,currency,text,notebookId))
+                }
+            }
+        }
+        return transactions
+    }
+
 }

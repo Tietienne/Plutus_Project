@@ -13,4 +13,12 @@ class Label(var id : Int, var text : String) : AutoCompleteEntity {
             = (other is Label)
             && id == other.id
             && text == other.text
+
+    override fun hashCode(): Int {
+        return Objects.hash(id, text)
+    }
+
+    override fun toString(): String {
+        return id.toString()
+    }
 }

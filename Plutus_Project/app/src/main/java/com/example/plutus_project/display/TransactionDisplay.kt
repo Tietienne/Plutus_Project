@@ -47,7 +47,7 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
 
     if (date == "Aujourd'hui") {
         val time = LocalDateTime.now()
-        date = "${time.dayOfMonth}/${time.monthValue}/${time.year}"
+        date = "${time.year}-${time.monthValue.toString().padStart(2, '0')}-${time.dayOfMonth.toString().padStart(2, '0')}"
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -71,14 +71,12 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
                 date = it
             }
         }
-
         Box(modifier = Modifier.fillMaxWidth()){
             drawMotif(motif,onMotifChange = {motif = it})
         }
         Box(modifier = Modifier.fillMaxWidth()) {
             drawLabelChoice(currentLabel) { currentLabel = it }
         }
-
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.CenterEnd) {
             Button(onClick = {
                 if (currentLabel == "") {
@@ -201,7 +199,7 @@ fun timePicker(date : String, onDateChange : (String) -> Unit){
     val mDatePickerDialog = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            onDateChange("$mDayOfMonth/${mMonth+1}/$mYear")
+            onDateChange("$mYear-${(mMonth+1).toString().padStart(2, '0')}-${(mDayOfMonth).toString().padStart(2, '0')}")
         }, mYear, mMonth, mDay
     )
 

@@ -34,7 +34,7 @@ import com.example.plutus_project.items.Transaction
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook){
+fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSearch : () -> Unit) {
 
     val onCreateTransaction = remember{ mutableStateOf(false)}
     val transactions = remember { mutableStateOf(db.getAllTransactions()) }
