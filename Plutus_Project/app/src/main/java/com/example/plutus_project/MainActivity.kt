@@ -49,7 +49,8 @@ fun pageState(db : NoteDatabaseHelper) {
     var notebook by rememberSaveable { mutableStateOf(list) }
     when(appState) {
         AppState.CHOOSING_NOTE -> NoteBookChoice(db) { notebook[0] = it ; appState = AppState.SHOW_NOTE }
-        AppState.SHOW_NOTE -> TransactionManagement(db, notebook[0])
+        AppState.SHOW_NOTE -> TransactionManagement(db, notebook[0]) { appState = AppState.SEARCHING }
+        AppState.SEARCHING -> SearchDisplay(db)
     }
 }
 

@@ -26,7 +26,7 @@ import com.example.plutus_project.items.Transaction
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook){
+fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSearch : () -> Unit) {
 
     val onCreateTransaction = remember{ mutableStateOf(false)}
     //FIXME getAllTransactions()
@@ -34,8 +34,13 @@ fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook){
 
     Column(modifier = Modifier.fillMaxSize()) {
         Text(text = "Transaction Management", modifier = Modifier.fillMaxWidth(), fontSize = 30.sp, textAlign = TextAlign.Center)
-        Button(onClick = { onCreateTransaction.value = true }, modifier = Modifier.align(Alignment.End)) {
-            Text(text = "Add")
+        Row(Modifier.fillMaxWidth()) {
+            Button(onClick = { startSearch() }, modifier = Modifier.weight(1f/2f)) {
+                Text(text = "Search")
+            }
+            Button(onClick = { onCreateTransaction.value = true }, modifier = Modifier.weight(1f/2f)) {
+                Text(text = "Add")
+            }
         }
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(items = transactions.value, itemContent = { item ->
