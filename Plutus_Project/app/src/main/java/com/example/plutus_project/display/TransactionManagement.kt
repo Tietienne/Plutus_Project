@@ -34,7 +34,7 @@ import com.example.plutus_project.items.Transaction
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSearch : () -> Unit) {
+fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSearch : () -> Unit, budget : () -> Unit, chooseNotebook : () -> Unit) {
 
     val onCreateTransaction = remember{ mutableStateOf(false)}
     val transactions = remember { mutableStateOf(db.getAllTransactions()) }
@@ -42,6 +42,20 @@ fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSea
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.LightGray)) {
+        Row(Modifier.fillMaxWidth()) {
+            Button(onClick = { chooseNotebook() }, modifier = Modifier.weight(1f/4f)) {
+                Text("Choose Notebook")
+            }
+            Button(onClick = { /* DO NOTHING */ }, modifier = Modifier.weight(1f/4f)) {
+                Text("Transactions")
+            }
+            Button(onClick = { startSearch() }, modifier = Modifier.weight(1f/4f)) {
+                Text("Search")
+            }
+            Button(onClick = { budget() }, modifier = Modifier.weight(1f/4f)) {
+                Text("Budgets")
+            }
+        }
         Text(text = "Your Transactions", modifier = Modifier.fillMaxWidth(), fontSize = 24.sp, textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.height(15.dp))
         Button(onClick = { onCreateTransaction.value = true }, modifier = Modifier.align(Alignment.End)) {
