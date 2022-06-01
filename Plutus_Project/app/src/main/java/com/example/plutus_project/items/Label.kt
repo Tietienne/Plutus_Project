@@ -17,4 +17,8 @@ class Label(var id : Int, var text : String) : AutoCompleteEntity {
     override fun hashCode(): Int {
         return Objects.hash(id, text)
     }
+
+    override fun toString(): String {
+        return id.toString()
+    }
 }

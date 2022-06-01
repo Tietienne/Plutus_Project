@@ -13,6 +13,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -39,8 +40,37 @@ fun SearchDisplay(db : NoteDatabaseHelper) {
         SearchState.FILLING_SEARCH -> fillingSearch(dateBegin, dateEnd, amountMin, amountMax, labels, motif, {dateBegin = it}, {dateEnd = it}, {amountMin = it},
             {amountMax = it}, { motif = it }, { searchState = SearchState.ADDING_LABELS }) { searchState = SearchState.SEARCHED }
         SearchState.ADDING_LABELS -> chooseLabelToSearchPage(db, labels, { if (labels.contains(it)) labels.remove(it) else labels.add(it) }) { searchState = SearchState.FILLING_SEARCH }
-        SearchState.SEARCHED -> chooseLabelToSearchPage(db, labels, { if (labels.contains(it)) labels.remove(it) else labels.add(it) }) { searchState = SearchState.FILLING_SEARCH }
+        SearchState.SEARCHED -> searchedPage(db, dateBegin, dateEnd, amountMin, amountMax, motif, labels, { searchState = SearchState.STATS }) { searchState = SearchState.FILLING_SEARCH }
         SearchState.STATS -> chooseLabelToSearchPage(db, labels, { if (labels.contains(it)) labels.remove(it) else labels.add(it) }) { searchState = SearchState.FILLING_SEARCH }
+    }
+}
+
+@Composable
+fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, amountMin: Int, amountMax: Int, motif: String, labels : List<Label>,
+                 statsPage : () -> Unit, goBack: () -> Unit) {
+    val transactions = remember { mutableStateOf(db.searchTransactions(dateBegin, dateEnd, amountMin, amountMax, motif, labels)) }
+    Column(Modifier.fillMaxSize()) {
+        Row {
+            Button(onClick = { goBack() }) {
+                Text(text = "Back to searching page")
+            }
+            Button(onClick = { statsPage() }) {
+                Text(text = "Show statistics")
+            }
+        }
+        Row {
+            Button(onClick = { /* TODO : Sort by amount*/ }) {
+                Text(text = "Not sorting by amount")
+            }
+            Button(onClick = { /* TODO : Sort by date*/ }) {
+                Text(text = "Not sorting by date")
+            }
+        }
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            items(items = transactions.value, itemContent = { item ->
+                TransactionDisplay(item, db, transactions)
+            })
+        }
     }
 }
 
