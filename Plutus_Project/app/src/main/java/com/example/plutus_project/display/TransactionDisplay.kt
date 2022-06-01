@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.os.Build
 import android.util.Log
 import android.widget.DatePicker
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,13 +26,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.display.LabelChoiceEditor
 import com.example.plutus_project.items.Label
-import com.example.plutus_project.items.Notebook
 import com.example.plutus_project.items.Transaction
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -46,6 +42,8 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
     var currency by remember { mutableStateOf(transaction.currency) }
     var date by remember { mutableStateOf(transaction.dateTime) }
     var motif by remember { mutableStateOf(transaction.text)}
+    val labels = remember { mutableStateOf(db.getAllLabelsFromTransaction(transaction)) }
+    var currentLabel by remember { mutableStateOf("") }
 
     if (date == "Aujourd'hui") {
         val time = LocalDateTime.now()
@@ -77,24 +75,39 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
             drawMotif(motif,onMotifChange = {motif = it})
         }
         Box(modifier = Modifier.fillMaxWidth()) {
-            drawLabelChoice()
+            drawLabelChoice(currentLabel) { currentLabel = it }
         }
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.CenterEnd) {
             Button(onClick = {
-                /* TODO : ADD label to transaction */
+                if (currentLabel == "") {
+                    return@Button
+                }
+                if (transaction.id != -1) {
+                    db.addLabelToTransaction(operation_id = transaction.id, currentLabel)
+                    labels.value = db.getAllLabelsFromTransaction(transaction)
+                } else {
+                    if (!labels.value.contains(Label(-1, currentLabel))) {
+                        labels.value = labels.value.plus(Label(-1, currentLabel))
+                    }
+                }
             }) {
                 Text(text = "Ajouter étiquette")
             }
         }
         Box(modifier = Modifier.fillMaxWidth().height(250.dp)) {
-            displayAllLabels()
+            displayAllLabels(labels)
         }
+
         Spacer(modifier = Modifier.height(30.dp))
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
             val context = LocalContext.current
             Button(onClick = {
-                val result = db.addTransaction(date, amount, currency, motif, transaction.notebookId)
-                Toast.makeText(context,"$date + $amount + $currency + $motif + $result", Toast.LENGTH_SHORT).show()
+                if (transaction.id == -1) {
+                    val new_transaction_id = db.addTransaction(date, amount, currency, motif, transaction.notebookId)
+                    for (label in labels.value) {
+                        db.addLabelToTransaction(operation_id = new_transaction_id, label.text)
+                    }
+                }
                 onAddingTransaction()
             }) {
                 Text(text = "Valider")
@@ -214,24 +227,16 @@ fun drawMotif(motif: String, onMotifChange : (String) -> Unit){
 
 
 @Composable
-fun drawLabelChoice() {
+fun drawLabelChoice(currentLabel: String, onChangeLabel : (String) -> Unit) {
     Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
-        LabelChoiceEditor()
+        LabelChoiceEditor(currentLabel, onChangeLabel)
     }
 }
 
 @Composable
-fun displayAllLabels() {
-    var labels = ArrayList<Label>()
-    labels.add(Label(-1, "test"))
-    labels.add(Label(-1, "test"))
-    labels.add(Label(-1, "test"))
-    labels.add(Label(-1, "test"))
-    labels.add(Label(-1, "test"))
-    labels.add(Label(-1, "test"))
-    labels.add(Label(-1, "test"))
+fun displayAllLabels(labels: MutableState<List<Label>>) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(items = labels, itemContent = { item ->
+        items(items = labels.value, itemContent = { item ->
             LabelDisplay(item)
         })
     }
