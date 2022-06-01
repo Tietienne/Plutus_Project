@@ -71,12 +71,14 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
                 date = it
             }
         }
+
         Box(modifier = Modifier.fillMaxWidth()){
             drawMotif(motif,onMotifChange = {motif = it})
         }
         Box(modifier = Modifier.fillMaxWidth()) {
             drawLabelChoice(currentLabel) { currentLabel = it }
         }
+
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.CenterEnd) {
             Button(onClick = {
                 if (currentLabel == "") {
@@ -94,11 +96,13 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
                 Text(text = "Ajouter étiquette")
             }
         }
-        Box(modifier = Modifier.fillMaxWidth().height(250.dp)) {
+
+        Box(modifier = Modifier.fillMaxWidth().height(50.dp)) {
             displayAllLabels(labels)
         }
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(10.dp))
+
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
             val context = LocalContext.current
             Button(onClick = {
@@ -197,7 +201,7 @@ fun timePicker(date : String, onDateChange : (String) -> Unit){
     val mDatePickerDialog = DatePickerDialog(
         mContext,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            onDateChange("$mYear-${mMonth+1}-$mDayOfMonth")
+            onDateChange("$mDayOfMonth/${mMonth+1}/$mYear")
         }, mYear, mMonth, mDay
     )
 
