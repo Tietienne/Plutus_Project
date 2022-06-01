@@ -87,7 +87,6 @@ fun TransactionDisplay(
     db: NoteDatabaseHelper,
     transactions: MutableState<List<Transaction>>
 ) {
-    //TODO("Not yet implemented")
     val onDuplicate = remember{ mutableStateOf(false)}
     val onRemove = remember{ mutableStateOf(false)}
     val onModifier = remember { mutableStateOf(false) }
@@ -155,9 +154,6 @@ fun TransactionDisplay(
                     onModifier.value = false
                     transactions.value = db.getAllTransactions()
                 }
-                /*ModifyTransaction(transaction, db,
-                    { state -> onModifier.value = state },
-                    { values -> transactions.value = values})*/
             }
         }
     }
@@ -172,9 +168,15 @@ fun TransactionDisplay(
                     .size(dialogRemoveWidth, dialogRemoveHeight)
                     .background(Color.White)) {
                 Column(Modifier.fillMaxSize()) {
-                    TextField(value = text, onValueChange = {newText -> text = newText},
-                        label = { Text(text = "Duplicated Transaction name") }, placeholder = { Text(text = "Write notebook's name") })
-                    Button(onClick = { /* TODO : duplicate notebook */ onDuplicate.value = false }) {
+                    Text(text = "Do you really want to duplicate this transaction : ${transaction.id}")
+                    Button(onClick = {
+                        val labels = db.getAllLabelsFromTransaction(transaction)
+                        val new_transaction_id = db.addTransaction(transaction.dateTime, transaction.amount, transaction.currency, transaction.text, transaction.notebookId)
+                        for (label in labels) {
+                            db.addLabelToTransaction(new_transaction_id, label.text)
+                        }
+                        transactions.value = db.getAllTransactions()
+                        onDuplicate.value = false }) {
                         Text(text = "Duplicate")
                     }
                 }

@@ -322,9 +322,9 @@ class NoteDatabaseHelper(
         return transactions
     }
 
-    fun removeLabelOfTransaction(label_id : Int) {
+    fun removeLabelOfTransaction(label_id : Int, operation_id: Int) {
         val writable_db = this.writableDatabase
-        writable_db.execSQL("DELETE FROM OpLab WHERE label_id =$label_id");
+        writable_db.execSQL("DELETE FROM OpLab WHERE label_id =$label_id AND operation_id = $operation_id");
     }
 
 }

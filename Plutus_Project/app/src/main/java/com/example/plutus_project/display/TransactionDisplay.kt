@@ -96,10 +96,10 @@ fun TransactionEditor(transaction: Transaction,db : NoteDatabaseHelper, onConfir
             }
         }
 
-        Box(modifier = Modifier.fillMaxWidth().height(50.dp)) {
+        Box(modifier = Modifier.fillMaxWidth().height(250.dp)) {
             displayAllLabels(labels) {
                 if (transaction.id != -1) {
-                    db.removeLabelOfTransaction(it.id)
+                    db.removeLabelOfTransaction(it.id, transaction.id)
                     labels.value = db.getAllLabelsFromTransaction(transaction)
                 } else {
                     labels.value = labels.value.minus(it)
