@@ -7,9 +7,10 @@ Il est possible de compiler soi-même le projet, mais rien n'est certain concern
 
 ## Fonctionnalités manquantes
 
-Certaines fonctionnalités ne sont pas présentes mais aussi non visibles pour l'utilisateur. Contrairement aux fonctionnalités suivantes :
+Certaines fonctionnalités ne sont pas présentes mais aussi non visibles pour l'utilisateur. Contrairement à la fonctionnalité suivante :
 - Le bouton pour afficher les statistiques n'affiche rien pour le moment
-- La duplication d'un notebook ne fonctionne pas complètement : un problème d'affichage survient.
+
 
 ## Bugs éventuels
 
+- La duplication d'un notebook ne fonctionne pas complètement : un problème d'affichage survient.
