@@ -68,8 +68,8 @@ fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSea
                 var transaction = Transaction(-1, "Aujourd'hui", 0, "EUR", "", notebook.id)
                 TransactionEditor(
                     transaction = transaction,
-                    onTransactionChange = { transaction = it },
-                    db
+                    db,
+                    { }
                 ) {
                     onCreateTransaction.value = false
                     transactions.value = db.getAllTransactions()
@@ -87,7 +87,6 @@ fun TransactionDisplay(
     db: NoteDatabaseHelper,
     transactions: MutableState<List<Transaction>>
 ) {
-    //TODO("Not yet implemented")
     val onDuplicate = remember{ mutableStateOf(false)}
     val onRemove = remember{ mutableStateOf(false)}
     val onModifier = remember { mutableStateOf(false) }
@@ -137,20 +136,47 @@ fun TransactionDisplay(
         }
     }
 
+    val dialogWidth = 400.dp
+    val dialogHeight = 600.dp
 
-    val dialogWidth = 200.dp
-    val dialogHeight = 200.dp
+    if (onModifier.value){
+        Dialog(onDismissRequest = { onModifier.value = false }) {
+            Box(
+                Modifier
+                    .size(dialogWidth, dialogHeight)
+                    .background(Color.White)
+            ) {
+                TransactionEditor(
+                    transaction = transaction,
+                    db,
+                    { state -> onModifier.value = state }
+                ) {
+                    onModifier.value = false
+                    transactions.value = db.getAllTransactions()
+                }
+            }
+        }
+    }
+
+    val dialogRemoveWidth = 200.dp
+    val dialogRemoveHeight = 200.dp
     var text by remember { mutableStateOf(TextFieldValue("")) }
     if (onDuplicate.value) {
         Dialog(onDismissRequest = { onDuplicate.value = false }) {
             Box(
                 Modifier
-                    .size(dialogWidth, dialogHeight)
+                    .size(dialogRemoveWidth, dialogRemoveHeight)
                     .background(Color.White)) {
                 Column(Modifier.fillMaxSize()) {
-                    TextField(value = text, onValueChange = {newText -> text = newText},
-                        label = { Text(text = "Duplicated Notebook name") }, placeholder = { Text(text = "Write notebook's name") })
-                    Button(onClick = { /* TODO : duplicate notebook */ onDuplicate.value = false }) {
+                    Text(text = "Do you really want to duplicate this transaction : ${transaction.id}")
+                    Button(onClick = {
+                        val labels = db.getAllLabelsFromTransaction(transaction)
+                        val new_transaction_id = db.addTransaction(transaction.dateTime, transaction.amount, transaction.currency, transaction.text, transaction.notebookId)
+                        for (label in labels) {
+                            db.addLabelToTransaction(new_transaction_id, label.text)
+                        }
+                        transactions.value = db.getAllTransactions()
+                        onDuplicate.value = false }) {
                         Text(text = "Duplicate")
                     }
                 }
@@ -162,33 +188,17 @@ fun TransactionDisplay(
         Dialog(onDismissRequest = { onRemove.value = false }) {
             Box(
                 Modifier
-                    .size(dialogWidth, dialogHeight)
+                    .size(dialogRemoveWidth, dialogRemoveHeight)
                     .background(Color.White)) {
                 Column(Modifier.fillMaxSize()) {
-                    Text("Do you really want to remove this Notebook : ${transaction.id.toString()}")
-                    Button(onClick = { db.removeNotebook(transaction.id); transactions.value = db.getAllTransactions() ; onRemove.value = false }) {
+                    Text("Do you really want to remove this Transaction : ${transaction.id}")
+                    Button(onClick = { db.removeTransaction(transaction.id); transactions.value = db.getAllTransactions() ; onRemove.value = false }) {
                         Text(text = "Remove", color = Color.Red)
                     }
                 }
             }
         }
     }
-
-
-    if (onModifier.value){
-        Dialog(onDismissRequest = { onModifier.value = false }) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.White)
-            ) {
-                ModifyTransaction(transaction, db,
-                    { state -> onModifier.value = state },
-                    { values -> transactions.value = values})
-            }
-        }
-    }
-
 }
 
 

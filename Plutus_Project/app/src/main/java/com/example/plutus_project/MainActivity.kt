@@ -31,9 +31,9 @@ class MainActivity : ComponentActivity() {
             Plutus_ProjectTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
+                    //LocalContext.current.deleteDatabase("plutusDb")
                     val db = NoteDatabaseHelper(LocalContext.current, "plutusDb")
                     pageState(db)
-                    //budgetPageState(db)
                 }
             }
         }
@@ -43,31 +43,14 @@ class MainActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun pageState(db : NoteDatabaseHelper) {
-    var list = ArrayList<Notebook>()
+    val list = ArrayList<Notebook>()
     list.add(Notebook(-1, ""))
     var appState by rememberSaveable { mutableStateOf(AppState.CHOOSING_NOTE) }
-    var notebook by rememberSaveable { mutableStateOf(list) }
+    val notebook by rememberSaveable { mutableStateOf(list) }
     when(appState) {
         AppState.CHOOSING_NOTE -> NoteBookChoice(db) { notebook[0] = it ; appState = AppState.SHOW_NOTE }
         AppState.SHOW_NOTE -> TransactionManagement(db, notebook[0]) { appState = AppState.SEARCHING }
         AppState.SEARCHING -> SearchDisplay(db)
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    Plutus_ProjectTheme {
-//        DrawTransaction()
-        val db = NoteDatabaseHelper(LocalContext.current, "plutusDb")
-        db.addNotebook("myNotebook")
-        var notebooks = db.getAllNotebooks()
-        var notebook = notebooks[0]
-//        var transaction = Transaction(1,"Aujourd'hui",0,"EUR","",id)
-//        TransactionEditor(transaction = transaction, onTransactionChange = {transaction = it },db)
-
-//        NoteBookChoice(db)
-        TransactionManagement(db,notebook)
+        AppState.BUDGET -> budgetPageState(db)
     }
 }

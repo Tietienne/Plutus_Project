@@ -84,7 +84,18 @@ fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : Mut
                 Column(Modifier.fillMaxSize()) {
                     TextField(value = text, onValueChange = {newText -> text = newText},
                         label = { Text(text = "Duplicated Notebook name") }, placeholder = { Text(text = "Write notebook's name") })
-                    Button(onClick = { /* TODO : duplicate notebook */ openDuplicate.value = false }) {
+                    Button(onClick = {
+                        val transactions = db.getTransactionsFromNotebook(notebook.id)
+                        val new_notebook_id = db.addNotebook(text.toString())
+                        for (transaction in transactions) {
+                            val labels = db.getAllLabelsFromTransaction(transaction)
+                            val new_transaction_id = db.addTransaction(transaction.dateTime, transaction.amount, transaction.currency, transaction.text, new_notebook_id)
+                            for (label in labels) {
+                                db.addLabelToTransaction(new_transaction_id, label.text)
+                            }
+                        }
+                        notebooks.value = db.getAllNotebooks()
+                        openDuplicate.value = false }) {
                         Text(text = "Duplicate")
                     }
                 }
