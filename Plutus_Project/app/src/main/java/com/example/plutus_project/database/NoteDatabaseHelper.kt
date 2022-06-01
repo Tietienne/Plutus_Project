@@ -219,15 +219,11 @@ class NoteDatabaseHelper(
         }
         val readable_db = this.readableDatabase
         val labels = ArrayList<Label>()
-        val selectQuery = "SELECT * FROM Label INNER JOIN OpLab on id = label_id WHERE transaction_id = ${transaction.id}"
+        val selectQuery = "SELECT * FROM Label INNER JOIN OpLab on id = label_id WHERE operation_id = ${transaction.id}"
         val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
         cursor.use { c ->
             with(c) {
                 while (moveToNext()) {
-                    Log.v("test", cursor.getString(0))
-                    Log.v("test", cursor.getString(1))
-                    Log.v("test", cursor.getString(2))
-
                     val labelId = Integer.parseInt(cursor.getString(0))
                     val labelText = cursor.getString(1)
                     labels.add(Label(labelId, labelText))
@@ -304,8 +300,6 @@ class NoteDatabaseHelper(
     fun searchTransactions(dateBegin : String, dateEnd : String, amountMin : Int, amountMax : Int, motif : String, labels : List<Label>) : List<Transaction> {
         val readable_db = this.readableDatabase
         val transactions = ArrayList<Transaction>()
-        Log.v("test", dateBegin)
-        Log.v("test", dateEnd)
         val selectQuery = if (labels.isNotEmpty()) {
             "SELECT * FROM Operation INNER JOIN OpLab on operation_id = id WHERE date <= '$dateEnd' AND date >= '$dateBegin' AND value <= '$amountMax' AND value >= '$amountMin' AND text LIKE '%$motif%' AND label_id IN " + labels.joinToString(", ", "(", ")")
         } else {
@@ -326,6 +320,11 @@ class NoteDatabaseHelper(
             }
         }
         return transactions
+    }
+
+    fun removeLabelOfTransaction(label_id : Int) {
+        val writable_db = this.writableDatabase
+        writable_db.execSQL("DELETE FROM OpLab WHERE label_id =$label_id");
     }
 
 }

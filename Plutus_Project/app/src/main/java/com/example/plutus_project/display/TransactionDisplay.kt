@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.os.Build
 import android.util.Log
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,7 +37,7 @@ import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transaction) -> Unit,db : NoteDatabaseHelper, onAddingTransaction : () -> Unit){
+fun TransactionEditor(transaction: Transaction,db : NoteDatabaseHelper, onConfirm: (Boolean) -> Unit, onAddingTransaction : () -> Unit){
 
     var amount by remember { mutableStateOf(transaction.amount) }
     var currency by remember { mutableStateOf(transaction.currency) }
@@ -96,7 +97,14 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
         }
 
         Box(modifier = Modifier.fillMaxWidth().height(50.dp)) {
-            displayAllLabels(labels)
+            displayAllLabels(labels) {
+                if (transaction.id != -1) {
+                    db.removeLabelOfTransaction(it.id)
+                    labels.value = db.getAllLabelsFromTransaction(transaction)
+                } else {
+                    labels.value = labels.value.minus(it)
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -109,6 +117,9 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
                     for (label in labels.value) {
                         db.addLabelToTransaction(operation_id = new_transaction_id, label.text)
                     }
+                } else {
+                    db.updateTransaction(transaction.id,date, amount, currency, motif, transaction.notebookId)
+                    onConfirm(false)
                 }
                 onAddingTransaction()
             }) {
@@ -236,19 +247,19 @@ fun drawLabelChoice(currentLabel: String, onChangeLabel : (String) -> Unit) {
 }
 
 @Composable
-fun displayAllLabels(labels: MutableState<List<Label>>) {
+fun displayAllLabels(labels: MutableState<List<Label>>, removeLabel: (Label) -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(items = labels.value, itemContent = { item ->
-            LabelDisplay(item)
+            LabelDisplay(item, removeLabel)
         })
     }
 }
 
 @Composable
-fun LabelDisplay(label : Label) {
+fun LabelDisplay(label : Label, removeLabel : (Label) -> Unit) {
     Row(Modifier.fillMaxSize().border(1.dp, Color.Black)) {
         Text(text = label.text)
-        Button(onClick = { /* TODO : remove instantly label */ }) {
+        Button(onClick = { removeLabel(label) }) {
             Text(text = "Remove")
         }
     }
