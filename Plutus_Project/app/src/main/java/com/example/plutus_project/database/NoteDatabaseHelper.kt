@@ -5,7 +5,6 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
 import com.example.plutus_project.items.Budget
 import com.example.plutus_project.items.Label
 import com.example.plutus_project.items.Notebook
@@ -42,7 +41,7 @@ class NoteDatabaseHelper(
         super.onOpen(db)
         if (db != null && !db.isReadOnly) {
             // Enable foreign key constraints
-            db.execSQL("PRAGMA foreign_keys=ON;");
+            db.execSQL("PRAGMA foreign_keys=ON;")
         }
     }
 
@@ -73,7 +72,7 @@ class NoteDatabaseHelper(
 
     fun removeNotebook(id : Int) {
         val writable_db = this.writableDatabase
-        writable_db.execSQL("DELETE FROM Notebook WHERE id =$id");
+        writable_db.execSQL("DELETE FROM Notebook WHERE id =$id")
     }
 
     fun getAllTransactions(): List<Transaction> {
@@ -98,31 +97,11 @@ class NoteDatabaseHelper(
                 }
             }
         }
-        return transactions;
-    }
-
-    fun getTransactionById(id : Int) : Transaction{
-        val readableDB = this.readableDatabase
-        val selectQuery = "SELECT * FROM Operation WHERE id=$id"
-        val cursor: Cursor = readableDB.rawQuery(selectQuery, null)
-        cursor.use { c ->
-            with(c) {
-                while (moveToNext()) {
-                    val id = Integer.parseInt(cursor.getString(0))
-                    val motif = cursor.getString(1)
-                    val date = cursor.getString(2)
-                    val amount = Integer.parseInt(cursor.getString(3))
-                    val currency = cursor.getString(4)
-                    val notebookId = Integer.parseInt(cursor.getString(6))
-                    return  Transaction(id,date,amount,currency,motif,notebookId)
-                }
-            }
-        }
-        return Transaction(-1, "",0,"","",-1)
+        return transactions
     }
 
     fun addTransaction(dateTime: String, amount : Int, currency: String, text : String, notebookId : Int): Int{
-        val writableDB = this.writableDatabase;
+        val writableDB = this.writableDatabase
         val values = ContentValues().apply {
 //            date TEXT, value REAL, currency TEXT, location TEXT, notebook_id
             put("text",text)
@@ -161,7 +140,7 @@ class NoteDatabaseHelper(
 
     fun removeLabel(id : Int) {
         val writable_db = this.writableDatabase
-        writable_db.execSQL("DELETE FROM Label WHERE id =$id");
+        writable_db.execSQL("DELETE FROM Label WHERE id =$id")
     }
 
     fun getLabel(id : Int) : Label {
@@ -264,7 +243,7 @@ class NoteDatabaseHelper(
 
     fun removeBudget(id : Int) {
         val writable_db = this.writableDatabase
-        writable_db.execSQL("DELETE FROM Budget WHERE id =$id");
+        writable_db.execSQL("DELETE FROM Budget WHERE id =$id")
     }
 
     fun addLabelToTransaction(operation_id : Int, text : String) : Int {
@@ -324,7 +303,7 @@ class NoteDatabaseHelper(
 
     fun removeLabelOfTransaction(label_id : Int, operation_id: Int) {
         val writable_db = this.writableDatabase
-        writable_db.execSQL("DELETE FROM OpLab WHERE label_id =$label_id AND operation_id = $operation_id");
+        writable_db.execSQL("DELETE FROM OpLab WHERE label_id =$label_id AND operation_id = $operation_id")
     }
 
     fun getTransactionsFromNotebook(notebookId: Int) : List<Transaction> {
@@ -345,6 +324,6 @@ class NoteDatabaseHelper(
                 }
             }
         }
-        return transactions;
+        return transactions
     }
 }

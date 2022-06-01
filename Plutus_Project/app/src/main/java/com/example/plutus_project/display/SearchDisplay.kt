@@ -3,32 +3,23 @@ package com.example.plutus_project
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.example.plutus_project.database.NoteDatabaseHelper
-import com.example.plutus_project.items.AppState
+import com.example.plutus_project.display.*
 import com.example.plutus_project.items.Label
-import com.example.plutus_project.items.Notebook
 import com.example.plutus_project.items.SearchState
-import java.time.LocalDateTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SearchDisplay(db : NoteDatabaseHelper) {
+fun SearchDisplay(db : NoteDatabaseHelper, chooseTransactions : () -> Unit, budgets : () -> Unit, chooseNotebook : () -> Unit) {
     val labels = remember { mutableStateListOf<Label>() }
     var searchState by rememberSaveable { mutableStateOf(SearchState.FILLING_SEARCH) }
     var dateBegin by remember { mutableStateOf("Date Begin") }
@@ -38,7 +29,7 @@ fun SearchDisplay(db : NoteDatabaseHelper) {
     var motif by remember { mutableStateOf("") }
     when(searchState) {
         SearchState.FILLING_SEARCH -> fillingSearch(dateBegin, dateEnd, amountMin, amountMax, labels, motif, {dateBegin = it}, {dateEnd = it}, {amountMin = it},
-            {amountMax = it}, { motif = it }, { searchState = SearchState.ADDING_LABELS }) { searchState = SearchState.SEARCHED }
+            {amountMax = it}, { motif = it }, { searchState = SearchState.ADDING_LABELS }, { searchState = SearchState.SEARCHED }, chooseTransactions, budgets, chooseNotebook)
         SearchState.ADDING_LABELS -> chooseLabelToSearchPage(db, labels, { if (labels.contains(it)) labels.remove(it) else labels.add(it) }) { searchState = SearchState.FILLING_SEARCH }
         SearchState.SEARCHED -> searchedPage(db, dateBegin, dateEnd, amountMin, amountMax, motif, labels, { searchState = SearchState.STATS }) { searchState = SearchState.FILLING_SEARCH }
         SearchState.STATS -> chooseLabelToSearchPage(db, labels, { if (labels.contains(it)) labels.remove(it) else labels.add(it) }) { searchState = SearchState.FILLING_SEARCH }
@@ -78,8 +69,23 @@ fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, 
 @Composable
 fun fillingSearch(beginDate : String, endDate : String, amountMin : Int, amountMax : Int, selectedLabels: List<Label>, motif : String,
                   changeBeginDate : (String) -> Unit, changeEndDate : (String) -> Unit, changeAmountMin : (Int) -> Unit,
-                  changeAmountMax : (Int) -> Unit, changeMotif : (String) -> Unit, chooseLabel : () -> Unit, search : () -> Unit) {
+                  changeAmountMax : (Int) -> Unit, changeMotif : (String) -> Unit, chooseLabel : () -> Unit, search : () -> Unit,
+                  chooseTransactions : () -> Unit, budgets : () -> Unit, chooseNotebook : () -> Unit) {
     Column {
+        Row(Modifier.fillMaxWidth()) {
+            Button(onClick = { chooseNotebook() }, modifier = Modifier.weight(1f/4f)) {
+                Text("Choose Notebook")
+            }
+            Button(onClick = { chooseTransactions() }, modifier = Modifier.weight(1f/4f)) {
+                Text("Transactions")
+            }
+            Button(onClick = { /* DO NOTHING */ }, modifier = Modifier.weight(1f/4f)) {
+                Text("Search")
+            }
+            Button(onClick = { budgets() }, modifier = Modifier.weight(1f/4f)) {
+                Text("Budgets")
+            }
+        }
         Row {
             Button(onClick = { chooseLabel() }) {
                 Text(text = "Choose labels")

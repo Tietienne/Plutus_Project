@@ -16,18 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Stable
 interface AutoCompleteEntity {
     fun filter(query: String): Boolean
-}
-
-@Stable
-interface ValueAutoCompleteEntity<T> : AutoCompleteEntity {
-    val value: T
 }
 
 private typealias ItemSelected<T> = (T) -> Unit
@@ -72,20 +66,6 @@ class AutoCompleteState<T : AutoCompleteEntity>(private val startItems: List<T>)
 
     override fun onItemSelected(block: ItemSelected<T>) {
         onItemSelectedBlock = block
-    }
-}
-
-typealias CustomFilter<T> = (T, String) -> Boolean
-
-fun <T> List<T>.asAutoCompleteEntities(filter: CustomFilter<T>): List<ValueAutoCompleteEntity<T>> {
-    return map {
-        object : ValueAutoCompleteEntity<T> {
-            override val value: T = it
-
-            override fun filter(query: String): Boolean {
-                return filter(value, query)
-            }
-        }
     }
 }
 

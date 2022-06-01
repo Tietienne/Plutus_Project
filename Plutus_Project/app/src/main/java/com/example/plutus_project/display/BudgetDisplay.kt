@@ -1,7 +1,6 @@
-package com.example.plutus_project
+package com.example.plutus_project.display
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -30,24 +28,39 @@ import java.time.LocalDateTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun budgetPageState(db : NoteDatabaseHelper) {
-    var time = LocalDateTime.now()
-    var currentDate = "${time.dayOfMonth}/${time.monthValue}/${time.year}"
+fun budgetPageState(db : NoteDatabaseHelper, chooseNotebook : () -> Unit, chooseTransactions : () -> Unit, startSearch : () -> Unit) {
+    val time = LocalDateTime.now()
+    val currentDate = "${time.dayOfMonth}/${time.monthValue}/${time.year}"
 
     var budgetState by rememberSaveable { mutableStateOf(BudgetState.ADDING_BUDGET) }
     var label by remember { mutableStateOf(Label(0, "")) }
     var amount by remember { mutableStateOf(0f) }
     var date by remember { mutableStateOf(currentDate) }
     when(budgetState) {
-        BudgetState.ADDING_BUDGET -> budgetPage(db, label, amount, date, { budgetState = BudgetState.CHOOSING_LABEL }, {amount = it}, {date = it})
+        BudgetState.ADDING_BUDGET -> budgetPage(db, label, amount, date, { budgetState = BudgetState.CHOOSING_LABEL }, {amount = it}, {date = it}, chooseNotebook, chooseTransactions, startSearch)
         BudgetState.CHOOSING_LABEL -> chooseLabelPage(db) { label = it; budgetState = BudgetState.ADDING_BUDGET }
     }
 }
 
 @Composable
-fun budgetPage(db : NoteDatabaseHelper, label : Label, amount : Float, date : String, chooseLabel: () -> Unit, changeAmount: (Float) -> Unit, changeDate: (String) -> Unit) {
+fun budgetPage(db : NoteDatabaseHelper, label : Label, amount : Float, date : String, chooseLabel: () -> Unit, changeAmount: (Float) -> Unit, changeDate: (String) -> Unit,
+                chooseNotebook : () -> Unit, chooseTransactions : () -> Unit, startSearch : () -> Unit) {
     val budgets = remember { mutableStateOf(db.getAllBudgets()) }
     Column(Modifier.fillMaxSize()) {
+        Row(Modifier.fillMaxWidth()) {
+            Button(onClick = { chooseNotebook() }, modifier = Modifier.weight(1f/4f)) {
+                Text("Choose Notebook")
+            }
+            Button(onClick = { chooseTransactions() }, modifier = Modifier.weight(1f/4f)) {
+                Text("Transactions")
+            }
+            Button(onClick = { startSearch() }, modifier = Modifier.weight(1f/4f)) {
+                Text("Search")
+            }
+            Button(onClick = { /* DO NOTHING */ }, modifier = Modifier.weight(1f/4f)) {
+                Text("Budgets")
+            }
+        }
         newBudget(db, label, budgets, amount, date, chooseLabel, changeAmount, changeDate)
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(items = budgets.value, itemContent = { item ->
