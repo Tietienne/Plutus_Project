@@ -134,6 +134,18 @@ class NoteDatabaseHelper(
         return writableDB.insert("Operation",null,values).toInt()
     }
 
+    fun updateTransaction( id: Int, dateTime: String, amount : Int, currency: String, text : String, notebookId : Int):Int{
+        val writableDB = this.writableDatabase
+        val values = ContentValues().apply {
+            put("text",text)
+            put("date",dateTime)
+            put("value",amount)
+            put("currency",currency)
+            put("notebook_id",notebookId)
+        }
+        return writableDB.update("Operation",values,"id=$id", null)
+    }
+
     fun removeTransaction(id: Int){
         val writableDB = this.writableDatabase
         writableDB.execSQL("DELETE FROM Operation WHERE id = $id")

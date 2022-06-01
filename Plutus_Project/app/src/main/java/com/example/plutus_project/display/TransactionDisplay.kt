@@ -94,11 +94,13 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
                 Text(text = "Ajouter étiquette")
             }
         }
-        Box(modifier = Modifier.fillMaxWidth().height(250.dp)) {
+
+        Box(modifier = Modifier.fillMaxWidth().height(50.dp)) {
             displayAllLabels(labels)
         }
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(10.dp))
+
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
             val context = LocalContext.current
             Button(onClick = {

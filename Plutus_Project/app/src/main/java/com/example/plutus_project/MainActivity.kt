@@ -61,13 +61,13 @@ fun DefaultPreview() {
     Plutus_ProjectTheme {
 //        DrawTransaction()
         val db = NoteDatabaseHelper(LocalContext.current, "plutusDb")
-//        db.addNotebook("myNotebook")
-//        var notebooks = db.getAllNotebooks()
-//        var id = notebooks[0].id;
+        db.addNotebook("myNotebook")
+        var notebooks = db.getAllNotebooks()
+        var notebook = notebooks[0]
 //        var transaction = Transaction(1,"Aujourd'hui",0,"EUR","",id)
 //        TransactionEditor(transaction = transaction, onTransactionChange = {transaction = it },db)
 
 //        NoteBookChoice(db)
-//        TransactionManagement(db)
+        TransactionManagement(db,notebook)
     }
 }
