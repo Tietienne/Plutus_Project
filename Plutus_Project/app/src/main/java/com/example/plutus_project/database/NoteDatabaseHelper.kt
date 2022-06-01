@@ -327,4 +327,24 @@ class NoteDatabaseHelper(
         writable_db.execSQL("DELETE FROM OpLab WHERE label_id =$label_id AND operation_id = $operation_id");
     }
 
+    fun getTransactionsFromNotebook(notebookId: Int) : List<Transaction> {
+        val readableDB = this.readableDatabase
+        val transactions = ArrayList<Transaction>()
+        val selectQuery = "SELECT * FROM Operation WHERE notebook_id = $notebookId"
+        val cursor : Cursor = readableDB.rawQuery(selectQuery,null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()){
+                    val id = Integer.parseInt(cursor.getString(0))
+                    val motif = cursor.getString(1)
+                    val date = cursor.getString(2)
+                    val amount = Integer.parseInt(cursor.getString(3))
+                    val currency = cursor.getString(4)
+                    val notebook_id = Integer.parseInt(cursor.getString(6))
+                    transactions.add(Transaction(id,date,amount,currency,motif,notebook_id))
+                }
+            }
+        }
+        return transactions;
+    }
 }

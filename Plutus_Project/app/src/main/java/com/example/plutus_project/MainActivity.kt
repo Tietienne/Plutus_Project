@@ -31,6 +31,7 @@ class MainActivity : ComponentActivity() {
             Plutus_ProjectTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
+                    //LocalContext.current.deleteDatabase("plutusDb")
                     val db = NoteDatabaseHelper(LocalContext.current, "plutusDb")
                     pageState(db)
                 }
