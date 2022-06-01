@@ -4,11 +4,13 @@ import android.app.DatePickerDialog
 import android.os.Build
 import android.util.Log
 import android.widget.DatePicker
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -25,9 +27,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.plutus_project.database.NoteDatabaseHelper
-import com.example.plutus_project.items.Notebook
+import com.example.plutus_project.display.LabelChoiceEditor
+import com.example.plutus_project.items.Label
 import com.example.plutus_project.items.Transaction
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -40,6 +42,8 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
     var currency by remember { mutableStateOf(transaction.currency) }
     var date by remember { mutableStateOf(transaction.dateTime) }
     var motif by remember { mutableStateOf(transaction.text)}
+    val labels = remember { mutableStateOf(db.getAllLabelsFromTransaction(transaction)) }
+    var currentLabel by remember { mutableStateOf("") }
 
     if (date == "Aujourd'hui") {
         val time = LocalDateTime.now()
@@ -58,7 +62,8 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
                         })
                 }
                 Column(Modifier.weight(4f)) {
-                    drawCurrency(currency, onCurrencyChange = {currency = it})                }
+                    drawCurrency(currency, onCurrencyChange = {currency = it})
+                }
             }
         }
         Box(modifier = Modifier.fillMaxWidth()){
@@ -69,12 +74,40 @@ fun TransactionEditor(transaction: Transaction, onTransactionChange: (Transactio
         Box(modifier = Modifier.fillMaxWidth()){
             drawMotif(motif,onMotifChange = {motif = it})
         }
-        Spacer(modifier = Modifier.height(150.dp))
+        Box(modifier = Modifier.fillMaxWidth()) {
+            drawLabelChoice(currentLabel) { currentLabel = it }
+        }
+        Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.CenterEnd) {
+            Button(onClick = {
+                if (currentLabel == "") {
+                    return@Button
+                }
+                if (transaction.id != -1) {
+                    db.addLabelToTransaction(operation_id = transaction.id, currentLabel)
+                    labels.value = db.getAllLabelsFromTransaction(transaction)
+                } else {
+                    if (!labels.value.contains(Label(-1, currentLabel))) {
+                        labels.value = labels.value.plus(Label(-1, currentLabel))
+                    }
+                }
+            }) {
+                Text(text = "Ajouter étiquette")
+            }
+        }
+        Box(modifier = Modifier.fillMaxWidth().height(250.dp)) {
+            displayAllLabels(labels)
+        }
+
+        Spacer(modifier = Modifier.height(30.dp))
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
             val context = LocalContext.current
             Button(onClick = {
-                val result = db.addTransaction(date, amount, currency, motif, transaction.notebookId)
-                Toast.makeText(context,"$date + $amount + $currency + $motif + $result", Toast.LENGTH_SHORT).show()
+                if (transaction.id == -1) {
+                    val new_transaction_id = db.addTransaction(date, amount, currency, motif, transaction.notebookId)
+                    for (label in labels.value) {
+                        db.addLabelToTransaction(operation_id = new_transaction_id, label.text)
+                    }
+                }
                 onAddingTransaction()
             }) {
                 Text(text = "Valider")
@@ -190,6 +223,33 @@ fun drawMotif(motif: String, onMotifChange : (String) -> Unit){
             .fillMaxWidth(),
         placeholder = { Text(text = "Motif",color = Color.Gray)}
     )
+}
+
+
+@Composable
+fun drawLabelChoice(currentLabel: String, onChangeLabel : (String) -> Unit) {
+    Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
+        LabelChoiceEditor(currentLabel, onChangeLabel)
+    }
+}
+
+@Composable
+fun displayAllLabels(labels: MutableState<List<Label>>) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(items = labels.value, itemContent = { item ->
+            LabelDisplay(item)
+        })
+    }
+}
+
+@Composable
+fun LabelDisplay(label : Label) {
+    Row(Modifier.fillMaxSize().border(1.dp, Color.Black)) {
+        Text(text = label.text)
+        Button(onClick = { /* TODO : remove instantly label */ }) {
+            Text(text = "Remove")
+        }
+    }
 }
 
 

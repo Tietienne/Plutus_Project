@@ -168,6 +168,22 @@ class NoteDatabaseHelper(
         return Label(-1, "")
     }
 
+    fun getLabel(text : String) : Label {
+        val readable_db = this.readableDatabase
+        val selectQuery = "SELECT * FROM Label WHERE text='$text'"
+        val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()) {
+                    val labelId = Integer.parseInt(cursor.getString(0))
+                    val labelText = cursor.getString(1)
+                    return Label(labelId, labelText)
+                }
+            }
+        }
+        return Label(-1, "")
+    }
+
     fun getAllLabels() : List<Label> {
         val readable_db = this.readableDatabase
         val labels = ArrayList<Label>()
@@ -176,6 +192,30 @@ class NoteDatabaseHelper(
         cursor.use { c ->
             with(c) {
                 while (moveToNext()) {
+                    val labelId = Integer.parseInt(cursor.getString(0))
+                    val labelText = cursor.getString(1)
+                    labels.add(Label(labelId, labelText))
+                }
+            }
+        }
+        return labels
+    }
+
+    fun getAllLabelsFromTransaction(transaction : Transaction) : List<Label> {
+        if (transaction.id == -1) {
+            return ArrayList()
+        }
+        val readable_db = this.readableDatabase
+        val labels = ArrayList<Label>()
+        val selectQuery = "SELECT * FROM Label INNER JOIN OpLab on id = label_id WHERE transaction_id = ${transaction.id}"
+        val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()) {
+                    Log.v("test", cursor.getString(0))
+                    Log.v("test", cursor.getString(1))
+                    Log.v("test", cursor.getString(2))
+
                     val labelId = Integer.parseInt(cursor.getString(0))
                     val labelText = cursor.getString(1)
                     labels.add(Label(labelId, labelText))
@@ -219,5 +259,34 @@ class NoteDatabaseHelper(
         writable_db.execSQL("DELETE FROM Budget WHERE id =$id");
     }
 
+    fun addLabelToTransaction(operation_id : Int, text : String) : Int {
+        var label_id = getLabel(text).id
+        if (label_id == -1) {
+            label_id = addLabel(text)
+        }
+        if (isLabelOfTransaction(operation_id, label_id)) {
+            return -1
+        }
+        val writable_db = this.writableDatabase
+        val values = ContentValues().apply {
+            put("operation_id", operation_id)
+            put("label_id", label_id)
+        }
+        return writable_db.insert("OpLab", null, values).toInt()
+    }
+
+    fun isLabelOfTransaction(operation_id: Int, label_id : Int) : Boolean {
+        val readable_db = this.readableDatabase
+        val selectQuery = "SELECT * FROM OpLab WHERE operation_id = $operation_id AND label_id = $label_id"
+        val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
 
 }
