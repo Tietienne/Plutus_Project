@@ -45,6 +45,7 @@ fun SearchDisplay(db : NoteDatabaseHelper) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, amountMin: Int, amountMax: Int, motif: String, labels : List<Label>,
                  statsPage : () -> Unit, goBack: () -> Unit) {
