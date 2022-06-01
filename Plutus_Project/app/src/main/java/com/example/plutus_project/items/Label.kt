@@ -1,6 +1,5 @@
 package com.example.plutus_project.items
 
-import android.util.Log
 import com.example.plutus_project.display.AutoCompleteEntity
 import java.util.*
 

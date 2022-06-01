@@ -1,14 +1,16 @@
 package com.example.plutus_project.display
 
-import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -20,7 +22,7 @@ import com.example.plutus_project.items.Label
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun LabelChoiceEditor(currentLabel : String, onChangeLabel : (String) -> Unit) {
-    var labels = ArrayList<Label>()
+    val labels = ArrayList<Label>()
     labels.add(Label(-1, "test"))
     AutoCompleteBox(labels, {label -> LabelAutoCompleteItem(label)}) {
         val view = LocalView.current

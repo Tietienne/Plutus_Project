@@ -1,4 +1,4 @@
-package com.example.plutus_project
+package com.example.plutus_project.display
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,7 +10,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.plutus_project.database.NoteDatabaseHelper
-import com.example.plutus_project.items.BudgetState
 import com.example.plutus_project.items.Notebook
 
 @Composable
@@ -50,7 +48,7 @@ fun NoteBookChoice(db : NoteDatabaseHelper, showNote : (Notebook) -> Unit) {
                 Column(Modifier.fillMaxSize()) {
                     TextField(value = text, onValueChange = {newText -> text = newText},
                         label = { Text(text = "Notebook name") }, placeholder = { Text(text = "Write notebook's name") })
-                    Button(onClick = { val newId = db.addNotebook(text.text); notebooks.value = db.getAllNotebooks(); openCreate.value = false }) {
+                    Button(onClick = { db.addNotebook(text.text); notebooks.value = db.getAllNotebooks(); openCreate.value = false }) {
                         Text(text = "Create")
                     }
                 }
@@ -65,9 +63,10 @@ fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : Mut
     val openRemove = remember { mutableStateOf(false) }
     Row(Modifier.fillMaxSize().border(1.dp, Color.Black).clickable { showNote(notebook) }) {
         Text(text = notebook.name)
-        Button(onClick = { openDuplicate.value = true }) {
+        // TODO : Fix duplication
+        /*Button(onClick = { openDuplicate.value = true }) {
             Text(text = "Duplicate")
-        }
+        }*/
         Button(onClick = { openRemove.value = true }) {
             Text(text = "Remove")
         }

@@ -1,10 +1,8 @@
-package com.example.plutus_project
+package com.example.plutus_project.display
 
 import android.app.DatePickerDialog
 import android.os.Build
-import android.util.Log
 import android.widget.DatePicker
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,7 +17,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -28,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.plutus_project.database.NoteDatabaseHelper
-import com.example.plutus_project.display.LabelChoiceEditor
 import com.example.plutus_project.items.Label
 import com.example.plutus_project.items.Transaction
 import java.time.LocalDateTime
@@ -110,7 +106,7 @@ fun TransactionEditor(transaction: Transaction,db : NoteDatabaseHelper, onConfir
         Spacer(modifier = Modifier.height(10.dp))
 
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
-            val context = LocalContext.current
+            LocalContext.current
             Button(onClick = {
                 if (transaction.id == -1) {
                     val new_transaction_id = db.addTransaction(date, amount, currency, motif, transaction.notebookId)
@@ -134,7 +130,7 @@ fun TransactionEditor(transaction: Transaction,db : NoteDatabaseHelper, onConfir
 @Composable
 fun drawAmount(amount: String, onAmountChange : (String) -> Unit){
 //    var amount by remember { mutableStateOf(TextFieldValue("")) }
-    TextField(value = "$amount", onValueChange = {onAmountChange(it)}, Modifier.background(Color.Transparent),
+    TextField(value = amount, onValueChange = {onAmountChange(it)}, Modifier.background(Color.Transparent),
         placeholder = { Text(text = "Montant",color = Color.Gray)},
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
     )
@@ -182,7 +178,6 @@ fun drawCurrency(currency: String, onCurrencyChange : (String) -> Unit){
 }
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun timePicker(date : String, onDateChange : (String) -> Unit){
 
@@ -218,7 +213,7 @@ fun timePicker(date : String, onDateChange : (String) -> Unit){
         .fillMaxWidth()
         .padding(5.dp),
         horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
-        Text(text = "${date}", fontSize = 18.sp, textAlign = TextAlign.Center,modifier = Modifier.padding(10.dp),color = Color.Gray)
+        Text(text = date, fontSize = 18.sp, textAlign = TextAlign.Center,modifier = Modifier.padding(10.dp),color = Color.Gray)
 
         Box(Modifier.clickable {
             mDatePickerDialog.show()

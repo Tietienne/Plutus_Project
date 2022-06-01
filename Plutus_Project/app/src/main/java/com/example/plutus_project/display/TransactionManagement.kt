@@ -1,10 +1,9 @@
-package com.example.plutus_project
+package com.example.plutus_project.display
 
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,18 +11,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,7 +74,7 @@ fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSea
                     .size(dialogWidth, dialogHeight)
                     .background(Color.White)
             ) {
-                var transaction = Transaction(-1, "Aujourd'hui", 0, "EUR", "", notebook.id)
+                val transaction = Transaction(-1, "Aujourd'hui", 0, "EUR", "", notebook.id)
                 TransactionEditor(
                     transaction = transaction,
                     db,
@@ -174,7 +169,6 @@ fun TransactionDisplay(
 
     val dialogRemoveWidth = 200.dp
     val dialogRemoveHeight = 200.dp
-    var text by remember { mutableStateOf(TextFieldValue("")) }
     if (onDuplicate.value) {
         Dialog(onDismissRequest = { onDuplicate.value = false }) {
             Box(
@@ -255,7 +249,7 @@ fun ModifyTransaction(transaction: Transaction, db: NoteDatabaseHelper, onConfir
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
             val context = LocalContext.current
             Button(onClick = {
-                var result = db.updateTransaction(transaction.id,date, amount, currency, motif, transaction.notebookId)
+                val result = db.updateTransaction(transaction.id,date, amount, currency, motif, transaction.notebookId)
                 Toast.makeText(context,"$date + $amount + $currency + $motif + $result", Toast.LENGTH_SHORT).show()
                 onUpdate(db.getAllTransactions())
                 onConfirm(false)

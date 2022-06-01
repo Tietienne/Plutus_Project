@@ -14,6 +14,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.example.plutus_project.database.NoteDatabaseHelper
+import com.example.plutus_project.display.NoteBookChoice
+import com.example.plutus_project.display.TransactionManagement
+import com.example.plutus_project.display.budgetPageState
 import com.example.plutus_project.items.AppState
 import com.example.plutus_project.items.Notebook
 import com.example.plutus_project.ui.theme.Plutus_ProjectTheme
@@ -27,7 +30,6 @@ class MainActivity : ComponentActivity() {
             Plutus_ProjectTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
-                    //LocalContext.current.deleteDatabase("plutusDb")
                     val db = NoteDatabaseHelper(LocalContext.current, "plutusDb")
                     pageState(db)
                 }

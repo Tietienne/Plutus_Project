@@ -1,7 +1,6 @@
-package com.example.plutus_project
+package com.example.plutus_project.display
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -31,8 +29,8 @@ import java.time.LocalDateTime
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun budgetPageState(db : NoteDatabaseHelper, chooseNotebook : () -> Unit, chooseTransactions : () -> Unit, startSearch : () -> Unit) {
-    var time = LocalDateTime.now()
-    var currentDate = "${time.dayOfMonth}/${time.monthValue}/${time.year}"
+    val time = LocalDateTime.now()
+    val currentDate = "${time.dayOfMonth}/${time.monthValue}/${time.year}"
 
     var budgetState by rememberSaveable { mutableStateOf(BudgetState.ADDING_BUDGET) }
     var label by remember { mutableStateOf(Label(0, "")) }
