@@ -15,11 +15,12 @@ import androidx.compose.ui.graphics.Color
 import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.display.*
 import com.example.plutus_project.items.Label
+import com.example.plutus_project.items.Notebook
 import com.example.plutus_project.items.SearchState
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SearchDisplay(db : NoteDatabaseHelper, chooseTransactions : () -> Unit, budgets : () -> Unit, chooseNotebook : () -> Unit) {
+fun SearchDisplay(db : NoteDatabaseHelper, notebook: Notebook, chooseTransactions : () -> Unit, budgets : () -> Unit, chooseNotebook : () -> Unit) {
     val labels = remember { mutableStateListOf<Label>() }
     var searchState by rememberSaveable { mutableStateOf(SearchState.FILLING_SEARCH) }
     var dateBegin by remember { mutableStateOf("Date Begin") }
@@ -31,7 +32,7 @@ fun SearchDisplay(db : NoteDatabaseHelper, chooseTransactions : () -> Unit, budg
         SearchState.FILLING_SEARCH -> fillingSearch(dateBegin, dateEnd, amountMin, amountMax, labels, motif, {dateBegin = it}, {dateEnd = it}, {amountMin = it},
             {amountMax = it}, { motif = it }, { searchState = SearchState.ADDING_LABELS }, { searchState = SearchState.SEARCHED }, chooseTransactions, budgets, chooseNotebook)
         SearchState.ADDING_LABELS -> chooseLabelToSearchPage(db, labels, { if (labels.contains(it)) labels.remove(it) else labels.add(it) }) { searchState = SearchState.FILLING_SEARCH }
-        SearchState.SEARCHED -> searchedPage(db, dateBegin, dateEnd, amountMin, amountMax, motif, labels, { searchState = SearchState.STATS }) { searchState = SearchState.FILLING_SEARCH }
+        SearchState.SEARCHED -> searchedPage(db, dateBegin, dateEnd, amountMin, amountMax, motif, labels, notebook, { searchState = SearchState.STATS }) { searchState = SearchState.FILLING_SEARCH }
         SearchState.STATS -> chooseLabelToSearchPage(db, labels, { if (labels.contains(it)) labels.remove(it) else labels.add(it) }) { searchState = SearchState.FILLING_SEARCH }
     }
 }
@@ -39,8 +40,8 @@ fun SearchDisplay(db : NoteDatabaseHelper, chooseTransactions : () -> Unit, budg
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, amountMin: Int, amountMax: Int, motif: String, labels : List<Label>,
-                 statsPage : () -> Unit, goBack: () -> Unit) {
-    val transactions = remember { mutableStateOf(db.searchTransactions(dateBegin, dateEnd, amountMin, amountMax, motif, labels)) }
+                 notebook: Notebook, statsPage : () -> Unit, goBack: () -> Unit) {
+    val transactions = remember { mutableStateOf(db.searchTransactionsFromNotebook(notebook.id, dateBegin, dateEnd, amountMin, amountMax, motif, labels)) }
     Column(Modifier.fillMaxSize()) {
         Row {
             Button(onClick = { goBack() }) {
@@ -60,7 +61,7 @@ fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, 
         }
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(items = transactions.value, itemContent = { item ->
-                TransactionDisplay(item, db, transactions)
+                TransactionDisplay(item, db, transactions, notebook)
             })
         }
     }

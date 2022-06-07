@@ -23,12 +23,13 @@ import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.items.Budget
 import com.example.plutus_project.items.BudgetState
 import com.example.plutus_project.items.Label
+import com.example.plutus_project.items.Notebook
 import java.time.LocalDateTime
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun budgetPageState(db : NoteDatabaseHelper, chooseNotebook : () -> Unit, chooseTransactions : () -> Unit, startSearch : () -> Unit) {
+fun budgetPageState(db : NoteDatabaseHelper, notebook: Notebook, chooseNotebook : () -> Unit, chooseTransactions : () -> Unit, startSearch : () -> Unit) {
     val time = LocalDateTime.now()
     val currentDate = "${time.dayOfMonth}/${time.monthValue}/${time.year}"
 
@@ -37,15 +38,15 @@ fun budgetPageState(db : NoteDatabaseHelper, chooseNotebook : () -> Unit, choose
     var amount by remember { mutableStateOf(0f) }
     var date by remember { mutableStateOf(currentDate) }
     when(budgetState) {
-        BudgetState.ADDING_BUDGET -> budgetPage(db, label, amount, date, { budgetState = BudgetState.CHOOSING_LABEL }, {amount = it}, {date = it}, chooseNotebook, chooseTransactions, startSearch)
+        BudgetState.ADDING_BUDGET -> budgetPage(db, label, notebook, amount, date, { budgetState = BudgetState.CHOOSING_LABEL }, {amount = it}, {date = it}, chooseNotebook, chooseTransactions, startSearch)
         BudgetState.CHOOSING_LABEL -> chooseLabelPage(db) { label = it; budgetState = BudgetState.ADDING_BUDGET }
     }
 }
 
 @Composable
-fun budgetPage(db : NoteDatabaseHelper, label : Label, amount : Float, date : String, chooseLabel: () -> Unit, changeAmount: (Float) -> Unit, changeDate: (String) -> Unit,
+fun budgetPage(db : NoteDatabaseHelper, label : Label, notebook: Notebook, amount : Float, date : String, chooseLabel: () -> Unit, changeAmount: (Float) -> Unit, changeDate: (String) -> Unit,
                 chooseNotebook : () -> Unit, chooseTransactions : () -> Unit, startSearch : () -> Unit) {
-    val budgets = remember { mutableStateOf(db.getAllBudgets()) }
+    val budgets = remember { mutableStateOf(db.getAllBudgetsFromNotebook(notebook.id)) }
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth()) {
             Button(onClick = { chooseNotebook() }, modifier = Modifier.weight(1f/4f)) {
@@ -61,17 +62,17 @@ fun budgetPage(db : NoteDatabaseHelper, label : Label, amount : Float, date : St
                 Text("Budgets")
             }
         }
-        newBudget(db, label, budgets, amount, date, chooseLabel, changeAmount, changeDate)
+        newBudget(db, label, notebook, budgets, amount, date, chooseLabel, changeAmount, changeDate)
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(items = budgets.value, itemContent = { item ->
-                budgetDisplay(item, db, budgets)
+                budgetDisplay(item, db, notebook, budgets)
             })
         }
     }
 }
 
 @Composable
-fun newBudget(db : NoteDatabaseHelper, label : Label, budgets : MutableState<List<Budget>>, amount : Float, date : String, chooseLabel : () -> Unit, changeAmount: (Float) -> Unit, changeDate: (String) -> Unit) {
+fun newBudget(db : NoteDatabaseHelper, label : Label, notebook: Notebook, budgets : MutableState<List<Budget>>, amount : Float, date : String, chooseLabel : () -> Unit, changeAmount: (Float) -> Unit, changeDate: (String) -> Unit) {
     Row(Modifier.fillMaxWidth()) {
         Button(onClick = { chooseLabel() }) {
             Text(text = if (label.text != "") label.text else "Choose label")
@@ -91,7 +92,7 @@ fun newBudget(db : NoteDatabaseHelper, label : Label, budgets : MutableState<Lis
     }
     Row(Modifier.fillMaxWidth()) {
         Button(
-            onClick = { db.addBudget(amount, date, label); budgets.value = db.getAllBudgets() },
+            onClick = { db.addBudget(amount, date, label, notebook.id); budgets.value = db.getAllBudgetsFromNotebook(notebook.id) },
             enabled = label.text != ""
         ) {
             Text(text = "Add")
@@ -100,7 +101,7 @@ fun newBudget(db : NoteDatabaseHelper, label : Label, budgets : MutableState<Lis
 }
 
 @Composable
-fun budgetDisplay(item : Budget, db : NoteDatabaseHelper, budgets : MutableState<List<Budget>>) {
+fun budgetDisplay(item : Budget, db : NoteDatabaseHelper, notebook: Notebook, budgets : MutableState<List<Budget>>) {
     val openRemove = remember { mutableStateOf(false) }
     Row(Modifier.fillMaxSize().border(1.dp, Color.Black)) {
         Text(text = "${item.label.text} : ${item.value} until ${item.date}")
@@ -118,7 +119,7 @@ fun budgetDisplay(item : Budget, db : NoteDatabaseHelper, budgets : MutableState
                     .background(Color.White)) {
                 Column(Modifier.fillMaxSize()) {
                     Text("Do you really want to remove this Budget : ${item.label.text} : ${item.value}")
-                    Button(onClick = { db.removeBudget(item.id); budgets.value = db.getAllBudgets() ; openRemove.value = false }) {
+                    Button(onClick = { db.removeBudget(item.id); budgets.value = db.getAllBudgetsFromNotebook(notebook.id) ; openRemove.value = false }) {
                         Text(text = "Remove", color = Color.Red)
                     }
                 }

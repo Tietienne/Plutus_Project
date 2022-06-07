@@ -32,7 +32,7 @@ import com.example.plutus_project.items.Transaction
 fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSearch : () -> Unit, budget : () -> Unit, chooseNotebook : () -> Unit) {
 
     val onCreateTransaction = remember{ mutableStateOf(false)}
-    val transactions = remember { mutableStateOf(db.getAllTransactions()) }
+    val transactions = remember { mutableStateOf(db.getAllTransactionsFromNotebook(notebook.id)) }
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -59,7 +59,7 @@ fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSea
         Spacer(modifier = Modifier.height(15.dp))
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(items = transactions.value, itemContent = { item ->
-                TransactionDisplay(item, db, transactions)
+                TransactionDisplay(item, db, transactions, notebook)
             })
         }
     }
@@ -81,7 +81,7 @@ fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSea
                     { }
                 ) {
                     onCreateTransaction.value = false
-                    transactions.value = db.getAllTransactions()
+                    transactions.value = db.getAllTransactionsFromNotebook(notebook.id)
                 }
             }
         }
@@ -94,7 +94,8 @@ fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSea
 fun TransactionDisplay(
     transaction: Transaction,
     db: NoteDatabaseHelper,
-    transactions: MutableState<List<Transaction>>
+    transactions: MutableState<List<Transaction>>,
+    notebook: Notebook
 ) {
     val onDuplicate = remember{ mutableStateOf(false)}
     val onRemove = remember{ mutableStateOf(false)}
@@ -161,7 +162,7 @@ fun TransactionDisplay(
                     { state -> onModifier.value = state }
                 ) {
                     onModifier.value = false
-                    transactions.value = db.getAllTransactions()
+                    transactions.value = db.getAllTransactionsFromNotebook(notebook.id)
                 }
             }
         }
@@ -183,7 +184,7 @@ fun TransactionDisplay(
                         for (label in labels) {
                             db.addLabelToTransaction(new_transaction_id, label.text)
                         }
-                        transactions.value = db.getAllTransactions()
+                        transactions.value = db.getAllTransactionsFromNotebook(notebook.id)
                         onDuplicate.value = false }) {
                         Text(text = "Duplicate")
                     }
@@ -200,7 +201,7 @@ fun TransactionDisplay(
                     .background(Color.White)) {
                 Column(Modifier.fillMaxSize()) {
                     Text("Do you really want to remove this Transaction : ${transaction.id}")
-                    Button(onClick = { db.removeTransaction(transaction.id); transactions.value = db.getAllTransactions() ; onRemove.value = false }) {
+                    Button(onClick = { db.removeTransaction(transaction.id); transactions.value = db.getAllTransactionsFromNotebook(notebook.id) ; onRemove.value = false }) {
                         Text(text = "Remove", color = Color.Red)
                     }
                 }
@@ -211,7 +212,7 @@ fun TransactionDisplay(
 
 
 @Composable
-fun ModifyTransaction(transaction: Transaction, db: NoteDatabaseHelper, onConfirm: (Boolean) -> Unit, onUpdate: (List<Transaction>) -> Unit){
+fun ModifyTransaction(transaction: Transaction, notebook: Notebook, db: NoteDatabaseHelper, onConfirm: (Boolean) -> Unit, onUpdate: (List<Transaction>) -> Unit){
 
     var amount by remember { mutableStateOf(transaction.amount) }
     var currency by remember { mutableStateOf(transaction.currency) }
@@ -251,7 +252,7 @@ fun ModifyTransaction(transaction: Transaction, db: NoteDatabaseHelper, onConfir
             Button(onClick = {
                 val result = db.updateTransaction(transaction.id,date, amount, currency, motif, transaction.notebookId)
                 Toast.makeText(context,"$date + $amount + $currency + $motif + $result", Toast.LENGTH_SHORT).show()
-                onUpdate(db.getAllTransactions())
+                onUpdate(db.getAllTransactionsFromNotebook(notebook.id))
                 onConfirm(false)
             }) {
                 Text(text = "Modifier")

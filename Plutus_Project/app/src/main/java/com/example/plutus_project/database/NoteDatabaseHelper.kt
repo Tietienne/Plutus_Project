@@ -21,7 +21,7 @@ class NoteDatabaseHelper(
         const val OPERATION_TABLE = """CREATE TABLE Operation(id INTEGER primary key autoincrement NOT NULL, text TEXT, date TEXT, value REAL, currency TEXT, location TEXT, notebook_id INTEGER NOT NULL, FOREIGN KEY (notebook_id) REFERENCES Notebook (id) ON DELETE CASCADE);"""
         const val LABEL_TABLE = """CREATE TABLE Label(id INTEGER primary key autoincrement NOT NULL, text TEXT);"""
         const val OP_LAB_TABLE = """CREATE TABLE OpLab(operation_id INTEGER NOT NULL, label_id INTEGER NOT NULL, FOREIGN KEY (label_id) REFERENCES Label (id) ON DELETE CASCADE, FOREIGN KEY (operation_id) REFERENCES Operation (id) ON DELETE CASCADE);"""
-        const val BUDGET_TABLE = """CREATE TABLE Budget(id INTEGER primary key autoincrement NOT NULL, value REAL, date TEXT, label_id INTEGER NOT NULL, FOREIGN KEY (label_id) REFERENCES Label (id) ON DELETE CASCADE);"""
+        const val BUDGET_TABLE = """CREATE TABLE Budget(id INTEGER primary key autoincrement NOT NULL, value REAL, date TEXT, label_id INTEGER NOT NULL, notebook_id INTEGER NOT NULL, FOREIGN KEY (label_id) REFERENCES Label (id) ON DELETE CASCADE, FOREIGN KEY (notebook_id) REFERENCES Notebook (id) ON DELETE CASCADE);"""
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -75,10 +75,10 @@ class NoteDatabaseHelper(
         writable_db.execSQL("DELETE FROM Notebook WHERE id =$id")
     }
 
-    fun getAllTransactions(): List<Transaction> {
+    fun getAllTransactionsFromNotebook(notebookId: Int): List<Transaction> {
         val readableDB = this.readableDatabase
         val transactions = ArrayList<Transaction>()
-        val selectQuery = "SELECT * FROM Operation"
+        val selectQuery = "SELECT * FROM Operation WHERE notebook_id = $notebookId"
         val cursor : Cursor = readableDB.rawQuery(selectQuery,null)
         cursor.use { c ->
             with(c) {
@@ -212,12 +212,13 @@ class NoteDatabaseHelper(
         return labels
     }
 
-    fun addBudget(value : Float, date : String, label : Label) : Int {
+    fun addBudget(value : Float, date : String, label : Label, notebookId: Int) : Int {
         val writable_db = this.writableDatabase
         val values = ContentValues().apply {
             put("value", value)
             put("date", date)
             put("label_id", label.id)
+            put("notebook_id", notebookId)
         }
         return writable_db.insert("Budget", null, values).toInt()
     }
@@ -276,13 +277,13 @@ class NoteDatabaseHelper(
         return false
     }
 
-    fun searchTransactions(dateBegin : String, dateEnd : String, amountMin : Int, amountMax : Int, motif : String, labels : List<Label>) : List<Transaction> {
+    fun searchTransactionsFromNotebook(notebookId: Int, dateBegin : String, dateEnd : String, amountMin : Int, amountMax : Int, motif : String, labels : List<Label>) : List<Transaction> {
         val readable_db = this.readableDatabase
         val transactions = ArrayList<Transaction>()
         val selectQuery = if (labels.isNotEmpty()) {
-            "SELECT * FROM Operation INNER JOIN OpLab on operation_id = id WHERE date <= '$dateEnd' AND date >= '$dateBegin' AND value <= '$amountMax' AND value >= '$amountMin' AND text LIKE '%$motif%' AND label_id IN " + labels.joinToString(", ", "(", ")")
+            "SELECT * FROM Operation INNER JOIN OpLab on operation_id = id WHERE notebook_id = $notebookId AND date <= '$dateEnd' AND date >= '$dateBegin' AND value <= '$amountMax' AND value >= '$amountMin' AND text LIKE '%$motif%' AND label_id IN " + labels.joinToString(", ", "(", ")")
         } else {
-            "SELECT * FROM Operation WHERE date <= '$dateEnd' AND date >= '$dateBegin' AND value <= '$amountMax' AND value >= '$amountMin'"
+            "SELECT * FROM Operation WHERE notebook_id = $notebookId AND date <= '$dateEnd' AND date >= '$dateBegin' AND value <= '$amountMax' AND value >= '$amountMin'"
         }
         val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
         cursor.use { c ->
@@ -325,5 +326,24 @@ class NoteDatabaseHelper(
             }
         }
         return transactions
+    }
+
+    fun getAllBudgetsFromNotebook(notebookId: Int) : List<Budget> {
+        val readableDB = this.readableDatabase
+        val budgets = ArrayList<Budget>()
+        val selectQuery = "SELECT * FROM Budget WHERE notebook_id = $notebookId"
+        val cursor : Cursor = readableDB.rawQuery(selectQuery,null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()){
+                    val id = Integer.parseInt(cursor.getString(0))
+                    val value = cursor.getString(1).toFloat()
+                    val date = cursor.getString(2)
+                    val label = getLabel(Integer.parseInt(cursor.getString(3)))
+                    budgets.add(Budget(id, value, date, label))
+                }
+            }
+        }
+        return budgets
     }
 }

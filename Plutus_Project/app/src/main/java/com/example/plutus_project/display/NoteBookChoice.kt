@@ -1,5 +1,6 @@
 package com.example.plutus_project.display
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -64,9 +65,9 @@ fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : Mut
     Row(Modifier.fillMaxSize().border(1.dp, Color.Black).clickable { showNote(notebook) }) {
         Text(text = notebook.name)
         // TODO : Fix duplication
-        /*Button(onClick = { openDuplicate.value = true }) {
+        Button(onClick = { openDuplicate.value = true }) {
             Text(text = "Duplicate")
-        }*/
+        }
         Button(onClick = { openRemove.value = true }) {
             Text(text = "Remove")
         }
@@ -85,13 +86,17 @@ fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : Mut
                         label = { Text(text = "Duplicated Notebook name") }, placeholder = { Text(text = "Write notebook's name") })
                     Button(onClick = {
                         val transactions = db.getTransactionsFromNotebook(notebook.id)
-                        val new_notebook_id = db.addNotebook(text.toString())
+                        val budgets = db.getAllBudgetsFromNotebook(notebook.id)
+                        val newNotebookId = db.addNotebook(text.text)
                         for (transaction in transactions) {
                             val labels = db.getAllLabelsFromTransaction(transaction)
-                            val new_transaction_id = db.addTransaction(transaction.dateTime, transaction.amount, transaction.currency, transaction.text, new_notebook_id)
+                            val newTransactionId = db.addTransaction(transaction.dateTime, transaction.amount, transaction.currency, transaction.text, newNotebookId)
                             for (label in labels) {
-                                db.addLabelToTransaction(new_transaction_id, label.text)
+                                db.addLabelToTransaction(newTransactionId, label.text)
                             }
+                        }
+                        for (budget in budgets) {
+                            db.addBudget(budget.value, budget.date, budget.label, newNotebookId)
                         }
                         notebooks.value = db.getAllNotebooks()
                         openDuplicate.value = false }) {
