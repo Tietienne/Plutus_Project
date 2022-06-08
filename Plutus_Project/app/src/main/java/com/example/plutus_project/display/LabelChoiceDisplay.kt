@@ -22,11 +22,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.items.Label
+import com.example.plutus_project.items.Notebook
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun LabelChoiceEditor(db : NoteDatabaseHelper, currentLabel : String, onChangeLabel : (String) -> Unit) {
-    var labels = remember { mutableStateOf(db.getAllLabels()) } // Labels existing
+fun LabelChoiceEditor(db : NoteDatabaseHelper, notebook: Notebook, currentLabel : String, onChangeLabel : (String) -> Unit) {
+    var labels = remember { mutableStateOf(db.getAllLabelsFromNotebook(notebook.id)) } // Labels existing
     // Labels by default
     labels.value = labels.value.plus(Label(-1, "+"))
     labels.value = labels.value.plus(Label(-1, "-"))

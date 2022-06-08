@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.items.Label
+import com.example.plutus_project.items.Notebook
 import com.example.plutus_project.items.Transaction
 import java.time.LocalDateTime
 import java.util.*
@@ -33,7 +34,7 @@ import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TransactionEditor(transaction: Transaction,db : NoteDatabaseHelper, onConfirm: (Boolean) -> Unit, onAddingTransaction : () -> Unit){
+fun TransactionEditor(transaction: Transaction, notebook: Notebook, db : NoteDatabaseHelper, onConfirm: (Boolean) -> Unit, onAddingTransaction : () -> Unit){
 
     var amount by remember { mutableStateOf(transaction.amount) }
     var currency by remember { mutableStateOf(transaction.currency) }
@@ -72,7 +73,7 @@ fun TransactionEditor(transaction: Transaction,db : NoteDatabaseHelper, onConfir
             drawMotif(motif,onMotifChange = {motif = it})
         }
         Box(modifier = Modifier.fillMaxWidth()) {
-            drawLabelChoice(db, currentLabel) { currentLabel = it }
+            drawLabelChoice(db, notebook, currentLabel) { currentLabel = it }
         }
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.CenterEnd) {
             Button(onClick = {
@@ -235,9 +236,9 @@ fun drawMotif(motif: String, onMotifChange : (String) -> Unit){
 
 
 @Composable
-fun drawLabelChoice(db : NoteDatabaseHelper, currentLabel: String, onChangeLabel : (String) -> Unit) {
+fun drawLabelChoice(db : NoteDatabaseHelper, notebook: Notebook, currentLabel: String, onChangeLabel : (String) -> Unit) {
     Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
-        LabelChoiceEditor(db, currentLabel, onChangeLabel)
+        LabelChoiceEditor(db, notebook, currentLabel, onChangeLabel)
     }
 }
 
