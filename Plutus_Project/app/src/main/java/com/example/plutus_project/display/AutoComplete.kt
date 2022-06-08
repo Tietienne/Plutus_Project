@@ -19,6 +19,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+/* Kotlin file coming from this github : https://github.com/pauloaapereira/Medium_JetpackCompose_AutoCompleteSearchBar
+* It's used to create an element with an "auto complete" list depending on the what the user is writing.
+*/
 @Stable
 interface AutoCompleteEntity {
     fun filter(query: String): Boolean

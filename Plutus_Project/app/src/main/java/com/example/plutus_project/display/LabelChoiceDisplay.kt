@@ -32,7 +32,7 @@ fun LabelChoiceEditor(db : NoteDatabaseHelper, currentLabel : String, onChangeLa
     labels.value = labels.value.plus(Label(-1, "-"))
     labels.value = labels.value.plus(Label(-1, "@todo"))
     labels.value = labels.value.plus(Label(-1, "="))
-
+    // --- //
     AutoCompleteBox(labels.value, {label -> LabelAutoCompleteItem(label)}) {
         val view = LocalView.current
 
