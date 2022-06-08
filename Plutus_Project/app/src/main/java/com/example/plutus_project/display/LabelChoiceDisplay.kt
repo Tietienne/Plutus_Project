@@ -11,20 +11,29 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.items.Label
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun LabelChoiceEditor(currentLabel : String, onChangeLabel : (String) -> Unit) {
-    val labels = ArrayList<Label>()
-    labels.add(Label(-1, "test"))
-    AutoCompleteBox(labels, {label -> LabelAutoCompleteItem(label)}) {
+fun LabelChoiceEditor(db : NoteDatabaseHelper, currentLabel : String, onChangeLabel : (String) -> Unit) {
+    var labels = remember { mutableStateOf(db.getAllLabels()) } // Labels existing
+    // Labels by default
+    labels.value = labels.value.plus(Label(-1, "+"))
+    labels.value = labels.value.plus(Label(-1, "-"))
+    labels.value = labels.value.plus(Label(-1, "@todo"))
+    labels.value = labels.value.plus(Label(-1, "="))
+
+    AutoCompleteBox(labels.value, {label -> LabelAutoCompleteItem(label)}) {
         val view = LocalView.current
 
         onItemSelected { label ->

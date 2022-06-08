@@ -72,7 +72,7 @@ fun TransactionEditor(transaction: Transaction,db : NoteDatabaseHelper, onConfir
             drawMotif(motif,onMotifChange = {motif = it})
         }
         Box(modifier = Modifier.fillMaxWidth()) {
-            drawLabelChoice(currentLabel) { currentLabel = it }
+            drawLabelChoice(db, currentLabel) { currentLabel = it }
         }
         Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.CenterEnd) {
             Button(onClick = {
@@ -235,9 +235,9 @@ fun drawMotif(motif: String, onMotifChange : (String) -> Unit){
 
 
 @Composable
-fun drawLabelChoice(currentLabel: String, onChangeLabel : (String) -> Unit) {
+fun drawLabelChoice(db : NoteDatabaseHelper, currentLabel: String, onChangeLabel : (String) -> Unit) {
     Box(modifier = Modifier.fillMaxWidth(),contentAlignment = Alignment.Center){
-        LabelChoiceEditor(currentLabel, onChangeLabel)
+        LabelChoiceEditor(db, currentLabel, onChangeLabel)
     }
 }
 
