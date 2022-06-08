@@ -192,6 +192,23 @@ class NoteDatabaseHelper(
         return labels
     }
 
+    fun getAllLabelsFromNotebook(notebookId: Int) : List<Label> {
+        val readable_db = this.readableDatabase
+        val labels = ArrayList<Label>()
+        val selectQuery = "SELECT * FROM Label INNER JOIN OpLab on label_id = Label.id INNER JOIN Operation on operation_id = Operation.id WHERE notebook_id = $notebookId"
+        val cursor: Cursor = readable_db.rawQuery(selectQuery, null)
+        cursor.use { c ->
+            with(c) {
+                while (moveToNext()) {
+                    val labelId = Integer.parseInt(cursor.getString(0))
+                    val labelText = cursor.getString(1)
+                    labels.add(Label(labelId, labelText))
+                }
+            }
+        }
+        return labels
+    }
+
     fun getAllLabelsFromTransaction(transaction : Transaction) : List<Label> {
         if (transaction.id == -1) {
             return ArrayList()

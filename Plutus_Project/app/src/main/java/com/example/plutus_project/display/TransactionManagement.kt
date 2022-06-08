@@ -77,6 +77,7 @@ fun TransactionManagement(db : NoteDatabaseHelper, notebook : Notebook, startSea
                 val transaction = Transaction(-1, "Aujourd'hui", 0, "EUR", "", notebook.id)
                 TransactionEditor(
                     transaction = transaction,
+                    notebook,
                     db,
                     { }
                 ) {
@@ -158,6 +159,7 @@ fun TransactionDisplay(
             ) {
                 TransactionEditor(
                     transaction = transaction,
+                    notebook,
                     db,
                     { state -> onModifier.value = state }
                 ) {

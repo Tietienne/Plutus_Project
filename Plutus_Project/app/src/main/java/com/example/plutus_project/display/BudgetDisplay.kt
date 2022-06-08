@@ -39,7 +39,7 @@ fun budgetPageState(db : NoteDatabaseHelper, notebook: Notebook, chooseNotebook 
     var date by remember { mutableStateOf(currentDate) }
     when(budgetState) {
         BudgetState.ADDING_BUDGET -> budgetPage(db, label, notebook, amount, date, { budgetState = BudgetState.CHOOSING_LABEL }, {amount = it}, {date = it}, chooseNotebook, chooseTransactions, startSearch)
-        BudgetState.CHOOSING_LABEL -> chooseLabelPage(db) { label = it; budgetState = BudgetState.ADDING_BUDGET }
+        BudgetState.CHOOSING_LABEL -> chooseLabelPage(db, notebook) { label = it; budgetState = BudgetState.ADDING_BUDGET }
     }
 }
 
@@ -129,28 +129,28 @@ fun budgetDisplay(item : Budget, db : NoteDatabaseHelper, notebook: Notebook, bu
 }
 
 @Composable
-fun chooseLabelPage(db : NoteDatabaseHelper, chooseLabel: (Label) -> Unit) {
+fun chooseLabelPage(db : NoteDatabaseHelper, notebook: Notebook, chooseLabel: (Label) -> Unit) {
     var text by remember { mutableStateOf("") }
-    val labels = remember { mutableStateOf(db.getAllLabels()) }
+    val labels = remember { mutableStateOf(db.getAllLabelsFromNotebook(notebook.id)) }
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth()) {
             TextField(value = text, onValueChange = { text = it }, Modifier.background(Color.Transparent),
                 placeholder = { Text(text = "Label",color = Color.Gray) }
             )
-            Button(onClick = { db.addLabel(text); labels.value = db.getAllLabels() }) {
+            Button(onClick = { db.addLabel(text); labels.value = db.getAllLabelsFromNotebook(notebook.id) }) {
                 Text(text = "Add")
             }
         }
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(items = labels.value, itemContent = { item ->
-                labelDisplay(item, db, labels, chooseLabel)
+                labelDisplay(item, db, notebook, labels, chooseLabel)
             })
         }
     }
 }
 
 @Composable
-fun labelDisplay(item : Label, db : NoteDatabaseHelper, labels : MutableState<List<Label>>, chooseLabel: (Label) -> Unit) {
+fun labelDisplay(item : Label, db : NoteDatabaseHelper, notebook: Notebook, labels : MutableState<List<Label>>, chooseLabel: (Label) -> Unit) {
     val openRemove = remember { mutableStateOf(false) }
     Row(Modifier.fillMaxSize().border(1.dp, Color.Black).clickable { chooseLabel(item) }) {
         Text(text = item.text)
@@ -168,7 +168,7 @@ fun labelDisplay(item : Label, db : NoteDatabaseHelper, labels : MutableState<Li
                     .background(Color.White)) {
                 Column(Modifier.fillMaxSize()) {
                     Text("Do you really want to remove this Label : ${item.text}")
-                    Button(onClick = { db.removeLabel(item.id); labels.value = db.getAllLabels() ; openRemove.value = false }) {
+                    Button(onClick = { db.removeLabel(item.id); labels.value = db.getAllLabelsFromNotebook(notebook.id) ; openRemove.value = false }) {
                         Text(text = "Remove", color = Color.Red)
                     }
                 }
