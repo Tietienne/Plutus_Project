@@ -1,6 +1,7 @@
 package com.example.plutus_project.display
 
-import android.util.Log
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,9 +20,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.plutus_project.chooseLabelToSearchPage
 import com.example.plutus_project.database.NoteDatabaseHelper
+import com.example.plutus_project.items.Label
 import com.example.plutus_project.items.Notebook
+import java.io.File
 
+@RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun NoteBookChoice(db : NoteDatabaseHelper, showNote : (Notebook) -> Unit) {
     val openCreate = remember { mutableStateOf(false) }
@@ -49,7 +54,7 @@ fun NoteBookChoice(db : NoteDatabaseHelper, showNote : (Notebook) -> Unit) {
                 Column(Modifier.fillMaxSize()) {
                     TextField(value = text, onValueChange = {newText -> text = newText},
                         label = { Text(text = "Notebook name") }, placeholder = { Text(text = "Write notebook's name") })
-                    Button(onClick = { db.addNotebook(text.text); notebooks.value = db.getAllNotebooks(); openCreate.value = false }) {
+                    Button(onClick = { db.addNotebook(text.text); notebooks.value = db.getAllNotebooks(); openCreate.value = false }, enabled = notebooks.value.stream().noneMatch {n -> n.name == text.text }) {
                         Text(text = "Create")
                     }
                 }
@@ -62,9 +67,13 @@ fun NoteBookChoice(db : NoteDatabaseHelper, showNote : (Notebook) -> Unit) {
 fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : MutableState<List<Notebook>>, showNote : (Notebook) -> Unit) {
     val openDuplicate = remember { mutableStateOf(false) }
     val openRemove = remember { mutableStateOf(false) }
+    val openExport = remember { mutableStateOf(false) }
+    val labels = remember { mutableStateListOf<Label>() }
     Row(Modifier.fillMaxSize().border(1.dp, Color.Black).clickable { showNote(notebook) }) {
         Text(text = notebook.name)
-        // TODO : Fix duplication
+        Button(onClick = { openExport.value = true }) {
+            Text(text = "Export")
+        }
         Button(onClick = { openDuplicate.value = true }) {
             Text(text = "Duplicate")
         }
@@ -72,8 +81,8 @@ fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : Mut
             Text(text = "Remove")
         }
     }
-    val dialogWidth = 200.dp
-    val dialogHeight = 200.dp
+    val dialogWidth = 400.dp
+    val dialogHeight = 400.dp
     var text by remember { mutableStateOf(TextFieldValue("")) }
     if (openDuplicate.value) {
         Dialog(onDismissRequest = { openDuplicate.value = false }) {
@@ -121,4 +130,37 @@ fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : Mut
             }
         }
     }
+    if (openExport.value) {
+        Dialog(onDismissRequest = { openExport.value = false }) {
+            Box(
+                Modifier
+                    .size(dialogWidth, dialogHeight)
+                    .background(Color.White)) {
+                Column(Modifier.fillMaxSize()) {
+                    Box(Modifier.fillMaxWidth()) {
+                        Text("Choose the labeled transactions to export : ")
+                    }
+                    Box(Modifier.fillMaxWidth().weight(2f/3f)) {
+                        chooseLabelToSearchPage(
+                            db,
+                            notebook,
+                            labels,
+                            { if (labels.contains(it)) labels.remove(it) else labels.add(it) }) {
+                            openExport.value = false
+                        }
+                    }
+                    Box(Modifier.fillMaxWidth().weight(1f/3f)) {
+                        Button(onClick = { exportFile(notebook.name); openExport.value = false }) {
+                            Text(text = "Export")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun exportFile(name : String) {
+    val file = File("$name.txt")
+    file.createNewFile()
 }

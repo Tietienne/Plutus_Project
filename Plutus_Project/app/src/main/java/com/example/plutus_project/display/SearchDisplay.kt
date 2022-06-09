@@ -123,7 +123,6 @@ fun fillingSearch(beginDate : String, endDate : String, amountMin : Int, amountM
             Text("Search")
         }
     }
-
 }
 
 @Composable
