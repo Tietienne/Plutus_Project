@@ -1,0 +1,3 @@
+- Ajout d'un Scaffold Menu pour naviguer entre les différentes fonctionnalités
+- Ajout d'une page basique de statistiques : pas de diagramme, somme totale des transactions uniquement
+- Tentative de gestion d'import / export des carnets sous forme de fichiers: fonctionnalité non aboutie : erreur dans la création de fichier
