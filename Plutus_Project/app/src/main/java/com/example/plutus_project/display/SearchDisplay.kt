@@ -44,6 +44,8 @@ fun SearchDisplay(db : NoteDatabaseHelper, notebook: Notebook, chooseTransaction
 fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, amountMin: Int, amountMax: Int, motif: String, labels : List<Label>,
                  notebook: Notebook, statsPage : () -> Unit, goBack: () -> Unit) {
     val transactions = remember { mutableStateOf(db.searchTransactionsFromNotebook(notebook.id, dateBegin, dateEnd, amountMin, amountMax, motif, labels)) }
+    var sortingAmount by remember { mutableStateOf("Not sorting by amount") }
+    var sortingDate by remember { mutableStateOf("Not sorting by date") }
     Column(Modifier.fillMaxSize()) {
         Row {
             Button(onClick = { goBack() }) {
@@ -54,14 +56,15 @@ fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, 
             }
         }
         Row {
-            var sortingAmount by remember { mutableStateOf("Not sorting by amount") }
             Button(onClick = { changeSortAmount(sortingAmount, transactions,
                 {transactions.value = db.searchTransactionsFromNotebook(notebook.id, dateBegin, dateEnd, amountMin, amountMax, motif, labels)})
                 { sortingAmount = it } }) {
                 Text(text = sortingAmount)
             }
-            Button(onClick = { /* TODO : Sort by date*/ }) {
-                Text(text = "Not sorting by date")
+            Button(onClick = { changeSortDate(sortingDate, transactions,
+                {transactions.value = db.searchTransactionsFromNotebook(notebook.id, dateBegin, dateEnd, amountMin, amountMax, motif, labels)})
+                { sortingDate = it } }) {
+                Text(text = sortingDate)
             }
         }
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
@@ -84,8 +87,26 @@ fun changeSortAmount(text : String, transactions : MutableState<List<Transaction
         return
     }
     if (text == "Sorting by amount DES") {
-        resetTransactions()
+        //resetTransactions()
         onChange("Not sorting by amount")
+        return;
+    }
+}
+
+fun changeSortDate(text : String, transactions : MutableState<List<Transaction>>, resetTransactions : () -> Unit, onChange : (String) -> Unit) {
+    if (text == "Not sorting by date") {
+        transactions.value = transactions.value.sortedBy { it.dateTime }
+        onChange("Sorting by date ASC")
+        return
+    }
+    if (text == "Sorting by date ASC") {
+        transactions.value = transactions.value.sortedBy { it.dateTime }.reversed()
+        onChange("Sorting by date DES")
+        return
+    }
+    if (text == "Sorting by date DES") {
+        //resetTransactions()
+        onChange("Not sorting by date")
         return;
     }
 }
