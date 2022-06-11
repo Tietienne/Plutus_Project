@@ -151,7 +151,7 @@ fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : Mut
                     }
                     Box(Modifier.fillMaxWidth().weight(1f/3f)) {
                         Button(onClick = { exportFile(notebook.name); openExport.value = false }) {
-                            Text(text = "Export")
+                            Text(text = "Export : Not working for now")
                         }
                     }
                 }
@@ -162,5 +162,5 @@ fun NotebookDisplay(notebook: Notebook, db : NoteDatabaseHelper, notebooks : Mut
 
 fun exportFile(name : String) {
     val file = File("$name.txt")
-    file.createNewFile()
+    //file.createNewFile() // Not Working
 }

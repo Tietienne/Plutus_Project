@@ -1,6 +1,7 @@
 package com.example.plutus_project
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import com.example.plutus_project.display.*
 import com.example.plutus_project.items.Label
 import com.example.plutus_project.items.Notebook
 import com.example.plutus_project.items.SearchState
+import com.example.plutus_project.items.Transaction
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -52,8 +54,11 @@ fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, 
             }
         }
         Row {
-            Button(onClick = { /* TODO : Sort by amount*/ }) {
-                Text(text = "Not sorting by amount")
+            var sortingAmount by remember { mutableStateOf("Not sorting by amount") }
+            Button(onClick = { changeSortAmount(sortingAmount, transactions,
+                {transactions.value = db.searchTransactionsFromNotebook(notebook.id, dateBegin, dateEnd, amountMin, amountMax, motif, labels)})
+                { sortingAmount = it } }) {
+                Text(text = sortingAmount)
             }
             Button(onClick = { /* TODO : Sort by date*/ }) {
                 Text(text = "Not sorting by date")
@@ -64,6 +69,24 @@ fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, 
                 TransactionDisplay(item, db, transactions, notebook)
             })
         }
+    }
+}
+
+fun changeSortAmount(text : String, transactions : MutableState<List<Transaction>>, resetTransactions : () -> Unit, onChange : (String) -> Unit) {
+    if (text == "Not sorting by amount") {
+        transactions.value = transactions.value.sortedBy { it.amount }
+        onChange("Sorting by amount ASC")
+        return
+    }
+    if (text == "Sorting by amount ASC") {
+        transactions.value = transactions.value.sortedBy { it.amount }.reversed()
+        onChange("Sorting by amount DES")
+        return
+    }
+    if (text == "Sorting by amount DES") {
+        resetTransactions()
+        onChange("Not sorting by amount")
+        return;
     }
 }
 
