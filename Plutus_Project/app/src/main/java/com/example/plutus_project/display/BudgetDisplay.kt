@@ -29,7 +29,7 @@ import java.time.LocalDateTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun budgetPageState(db : NoteDatabaseHelper, notebook: Notebook, chooseNotebook : () -> Unit, chooseTransactions : () -> Unit, startSearch : () -> Unit) {
+fun budgetPageState(db : NoteDatabaseHelper, notebook: Notebook) {
     val time = LocalDateTime.now()
     val currentDate = "${time.dayOfMonth}/${time.monthValue}/${time.year}"
 
@@ -38,30 +38,15 @@ fun budgetPageState(db : NoteDatabaseHelper, notebook: Notebook, chooseNotebook 
     var amount by remember { mutableStateOf(0f) }
     var date by remember { mutableStateOf(currentDate) }
     when(budgetState) {
-        BudgetState.ADDING_BUDGET -> budgetPage(db, label, notebook, amount, date, { budgetState = BudgetState.CHOOSING_LABEL }, {amount = it}, {date = it}, chooseNotebook, chooseTransactions, startSearch)
+        BudgetState.ADDING_BUDGET -> budgetPage(db, label, notebook, amount, date, { budgetState = BudgetState.CHOOSING_LABEL }, {amount = it}, {date = it})
         BudgetState.CHOOSING_LABEL -> chooseLabelPage(db, notebook) { label = it; budgetState = BudgetState.ADDING_BUDGET }
     }
 }
 
 @Composable
-fun budgetPage(db : NoteDatabaseHelper, label : Label, notebook: Notebook, amount : Float, date : String, chooseLabel: () -> Unit, changeAmount: (Float) -> Unit, changeDate: (String) -> Unit,
-                chooseNotebook : () -> Unit, chooseTransactions : () -> Unit, startSearch : () -> Unit) {
+fun budgetPage(db : NoteDatabaseHelper, label : Label, notebook: Notebook, amount : Float, date : String, chooseLabel: () -> Unit, changeAmount: (Float) -> Unit, changeDate: (String) -> Unit) {
     val budgets = remember { mutableStateOf(db.getAllBudgetsFromNotebook(notebook.id)) }
     Column(Modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth()) {
-            Button(onClick = { chooseNotebook() }, modifier = Modifier.weight(1f/4f)) {
-                Text("Choose Notebook")
-            }
-            Button(onClick = { chooseTransactions() }, modifier = Modifier.weight(1f/4f)) {
-                Text("Transactions")
-            }
-            Button(onClick = { startSearch() }, modifier = Modifier.weight(1f/4f)) {
-                Text("Search")
-            }
-            Button(onClick = { /* DO NOTHING */ }, modifier = Modifier.weight(1f/4f)) {
-                Text("Budgets")
-            }
-        }
         newBudget(db, label, notebook, budgets, amount, date, chooseLabel, changeAmount, changeDate)
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(items = budgets.value, itemContent = { item ->

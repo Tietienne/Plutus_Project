@@ -21,7 +21,7 @@ import com.example.plutus_project.items.Transaction
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SearchDisplay(db : NoteDatabaseHelper, notebook: Notebook, chooseTransactions : () -> Unit, budgets : () -> Unit, chooseNotebook : () -> Unit) {
+fun SearchDisplay(db : NoteDatabaseHelper, notebook: Notebook) {
     val labels = remember { mutableStateListOf<Label>() }
     var searchState by rememberSaveable { mutableStateOf(SearchState.FILLING_SEARCH) }
     var dateBegin by remember { mutableStateOf("Date Begin") }
@@ -29,10 +29,10 @@ fun SearchDisplay(db : NoteDatabaseHelper, notebook: Notebook, chooseTransaction
     var amountMin by remember { mutableStateOf(0) }
     var amountMax by remember { mutableStateOf(100) }
     var motif by remember { mutableStateOf("") }
-    var transactions = remember { mutableStateListOf<Transaction>() }
+    val transactions = remember { mutableStateListOf<Transaction>() }
     when(searchState) {
         SearchState.FILLING_SEARCH -> fillingSearch(dateBegin, dateEnd, amountMin, amountMax, labels, motif, {dateBegin = it}, {dateEnd = it}, {amountMin = it},
-            {amountMax = it}, { motif = it }, { searchState = SearchState.ADDING_LABELS }, { searchState = SearchState.SEARCHED }, chooseTransactions, budgets, chooseNotebook)
+            {amountMax = it}, { motif = it }, { searchState = SearchState.ADDING_LABELS }, { searchState = SearchState.SEARCHED })
         SearchState.ADDING_LABELS -> chooseLabelToSearchPage(db, notebook, labels, { if (labels.contains(it)) labels.remove(it) else labels.add(it) }) { searchState = SearchState.FILLING_SEARCH }
         SearchState.SEARCHED -> searchedPage(db, dateBegin, dateEnd, amountMin, amountMax, motif, labels, notebook, { transactions.clear(); transactions.addAll(it); searchState = SearchState.STATS })
                                 { searchState = SearchState.FILLING_SEARCH }
@@ -142,23 +142,8 @@ fun changeSortDate(text : String, transactions : MutableState<List<Transaction>>
 @Composable
 fun fillingSearch(beginDate : String, endDate : String, amountMin : Int, amountMax : Int, selectedLabels: List<Label>, motif : String,
                   changeBeginDate : (String) -> Unit, changeEndDate : (String) -> Unit, changeAmountMin : (Int) -> Unit,
-                  changeAmountMax : (Int) -> Unit, changeMotif : (String) -> Unit, chooseLabel : () -> Unit, search : () -> Unit,
-                  chooseTransactions : () -> Unit, budgets : () -> Unit, chooseNotebook : () -> Unit) {
+                  changeAmountMax : (Int) -> Unit, changeMotif : (String) -> Unit, chooseLabel : () -> Unit, search : () -> Unit) {
     Column {
-        Row(Modifier.fillMaxWidth()) {
-            Button(onClick = { chooseNotebook() }, modifier = Modifier.weight(1f/4f)) {
-                Text("Choose Notebook")
-            }
-            Button(onClick = { chooseTransactions() }, modifier = Modifier.weight(1f/4f)) {
-                Text("Transactions")
-            }
-            Button(onClick = { /* DO NOTHING */ }, modifier = Modifier.weight(1f/4f)) {
-                Text("Search")
-            }
-            Button(onClick = { budgets() }, modifier = Modifier.weight(1f/4f)) {
-                Text("Budgets")
-            }
-        }
         Row {
             Button(onClick = { chooseLabel() }) {
                 Text(text = "Choose labels")
