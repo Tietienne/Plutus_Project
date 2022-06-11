@@ -1,6 +1,7 @@
 package com.example.plutus_project
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import com.example.plutus_project.display.*
 import com.example.plutus_project.items.Label
 import com.example.plutus_project.items.Notebook
 import com.example.plutus_project.items.SearchState
+import com.example.plutus_project.items.Transaction
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -42,6 +44,8 @@ fun SearchDisplay(db : NoteDatabaseHelper, notebook: Notebook, chooseTransaction
 fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, amountMin: Int, amountMax: Int, motif: String, labels : List<Label>,
                  notebook: Notebook, statsPage : () -> Unit, goBack: () -> Unit) {
     val transactions = remember { mutableStateOf(db.searchTransactionsFromNotebook(notebook.id, dateBegin, dateEnd, amountMin, amountMax, motif, labels)) }
+    var sortingAmount by remember { mutableStateOf("Not sorting by amount") }
+    var sortingDate by remember { mutableStateOf("Not sorting by date") }
     Column(Modifier.fillMaxSize()) {
         Row {
             Button(onClick = { goBack() }) {
@@ -52,11 +56,15 @@ fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, 
             }
         }
         Row {
-            Button(onClick = { /* TODO : Sort by amount*/ }) {
-                Text(text = "Not sorting by amount")
+            Button(onClick = { changeSortAmount(sortingAmount, transactions,
+                {transactions.value = db.searchTransactionsFromNotebook(notebook.id, dateBegin, dateEnd, amountMin, amountMax, motif, labels)})
+                { sortingAmount = it } }) {
+                Text(text = sortingAmount)
             }
-            Button(onClick = { /* TODO : Sort by date*/ }) {
-                Text(text = "Not sorting by date")
+            Button(onClick = { changeSortDate(sortingDate, transactions,
+                {transactions.value = db.searchTransactionsFromNotebook(notebook.id, dateBegin, dateEnd, amountMin, amountMax, motif, labels)})
+                { sortingDate = it } }) {
+                Text(text = sortingDate)
             }
         }
         LazyColumn(modifier = Modifier.fillMaxWidth()) {
@@ -64,6 +72,42 @@ fun searchedPage(db : NoteDatabaseHelper, dateBegin : String, dateEnd : String, 
                 TransactionDisplay(item, db, transactions, notebook)
             })
         }
+    }
+}
+
+fun changeSortAmount(text : String, transactions : MutableState<List<Transaction>>, resetTransactions : () -> Unit, onChange : (String) -> Unit) {
+    if (text == "Not sorting by amount") {
+        transactions.value = transactions.value.sortedBy { it.amount }
+        onChange("Sorting by amount ASC")
+        return
+    }
+    if (text == "Sorting by amount ASC") {
+        transactions.value = transactions.value.sortedBy { it.amount }.reversed()
+        onChange("Sorting by amount DES")
+        return
+    }
+    if (text == "Sorting by amount DES") {
+        //resetTransactions()
+        onChange("Not sorting by amount")
+        return;
+    }
+}
+
+fun changeSortDate(text : String, transactions : MutableState<List<Transaction>>, resetTransactions : () -> Unit, onChange : (String) -> Unit) {
+    if (text == "Not sorting by date") {
+        transactions.value = transactions.value.sortedBy { it.dateTime }
+        onChange("Sorting by date ASC")
+        return
+    }
+    if (text == "Sorting by date ASC") {
+        transactions.value = transactions.value.sortedBy { it.dateTime }.reversed()
+        onChange("Sorting by date DES")
+        return
+    }
+    if (text == "Sorting by date DES") {
+        //resetTransactions()
+        onChange("Not sorting by date")
+        return;
     }
 }
 
@@ -123,7 +167,6 @@ fun fillingSearch(beginDate : String, endDate : String, amountMin : Int, amountM
             Text("Search")
         }
     }
-
 }
 
 @Composable
