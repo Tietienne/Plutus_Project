@@ -7,10 +7,13 @@ Il est possible de compiler soi-même le projet, mais rien n'est certain concern
 
 ## Fonctionnalités manquantes
 
-Certaines fonctionnalités ne sont pas présentes mais aussi non visibles pour l'utilisateur. Contrairement à la fonctionnalité suivante :
-- Le bouton pour afficher les statistiques n'affiche rien pour le moment
+- Les diagrammes dans la page de statistiques ne sont pas disponibles
+- Les notifications ne sont pas mises en place (budgets ou @todo)
+- L'import / export des carnets sous la forme de fichier ne fonctionnent pas : la création de fichier via émulateur ne fonctionne pas
 
 
 ## Bugs éventuels
 
-- La duplication d'un notebook ne fonctionne pas complètement : un problème d'affichage survient.
+Aucun bug n'a été découvert dans la version finale de ce projet. <br>
+Néanmoins, il est possible qu'un cas de figure non testé (marque de téléphone particulière + action spécifique) puisque ne pas fonctionné comme attendu.
+L'intégralité des tests ont été effectués avec un émulateur Pixel 5 API 29.
