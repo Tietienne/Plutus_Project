@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.display.NoteBookChoice
+import com.example.plutus_project.display.SearchDisplay
 import com.example.plutus_project.display.TransactionManagement
 import com.example.plutus_project.display.budgetPageState
 import com.example.plutus_project.items.AppState
