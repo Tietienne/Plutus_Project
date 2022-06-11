@@ -20,7 +20,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.example.plutus_project.chooseLabelToSearchPage
 import com.example.plutus_project.database.NoteDatabaseHelper
 import com.example.plutus_project.items.Label
 import com.example.plutus_project.items.Notebook

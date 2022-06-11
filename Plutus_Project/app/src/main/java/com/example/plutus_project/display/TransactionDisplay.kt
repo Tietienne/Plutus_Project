@@ -52,12 +52,18 @@ fun TransactionEditor(transaction: Transaction, notebook: Notebook, db : NoteDat
         Box(modifier = Modifier.fillMaxWidth()){
             Row(Modifier.fillMaxWidth()) {
                 Column(Modifier.weight(6f)) {
-                    drawAmount(amount.toString(),onAmountChange = {
+                    drawAmount(amount.toString()) {
                         amount = if (it == "")
                             0
-                        else
-                            it.toInt()
-                        })
+                        else {
+                            try {
+                                it.toInt()
+                            } catch (e : NumberFormatException) {
+                                amount
+                            }
+                        }
+
+                    }
                 }
                 Column(Modifier.weight(4f)) {
                     drawCurrency(currency, onCurrencyChange = {currency = it})
