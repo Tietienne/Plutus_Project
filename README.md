@@ -15,5 +15,5 @@ Il est possible de compiler soi-même le projet, mais rien n'est certain concern
 ## Bugs éventuels
 
 Aucun bug n'a été découvert dans la version finale de ce projet. <br>
-Néanmoins, il est possible qu'un cas de figure non testé (marque de téléphone particulière + action spécifique) puisque ne pas fonctionné comme attendu.
+Néanmoins, il est possible qu'un cas de figure non testé (marque de téléphone particulière + action spécifique) puisse ne pas fonctionner comme attendu.
 L'intégralité des tests ont été effectués avec un émulateur Pixel 5 API 29.
