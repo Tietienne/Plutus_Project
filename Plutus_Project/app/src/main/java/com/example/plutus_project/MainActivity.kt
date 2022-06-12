@@ -13,10 +13,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.example.plutus_project.database.NoteDatabaseHelper
-import com.example.plutus_project.display.NoteBookChoice
-import com.example.plutus_project.display.SearchDisplay
-import com.example.plutus_project.display.TransactionManagement
-import com.example.plutus_project.display.budgetPageState
+import com.example.plutus_project.display.*
 import com.example.plutus_project.items.AppState
 import com.example.plutus_project.items.Notebook
 import com.example.plutus_project.ui.theme.Plutus_ProjectTheme
@@ -31,7 +28,9 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
                     val db = NoteDatabaseHelper(LocalContext.current, "plutusDb")
-                    pageState(db)
+//                    pageState(db)
+                    var mainPage = DrawerScreen("homePage","home")
+                    mainPage.AppMainScreen(db)
                 }
             }
         }
